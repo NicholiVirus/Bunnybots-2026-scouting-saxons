@@ -27,7 +27,7 @@ export function registerServiceWorker() {
   });
 
   if (!('serviceWorker' in navigator) || process.env.NODE_ENV !== 'production') return;
-  window.addEventListener('load', async () => {
+  const register = async () => {
     try {
       const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
       pwaStore.set({ swActive: !!reg.active });
@@ -52,16 +52,23 @@ export function registerServiceWorker() {
     } catch {
       /* SW unsupported (e.g. Firefox private) — app still works online */
     }
-  });
+  };
+  // hydration usually happens after `load` already fired
+  if (document.readyState === 'complete') void register();
+  else window.addEventListener('load', () => void register(), { once: true });
 
   let reloaded = false;
   navigator.serviceWorker?.addEventListener('controllerchange', () => {
-    if (reloaded) return;
+    // Only after the user tapped "Update now" — never on first install or mid-match.
+    if (reloaded || !updateRequested) return;
     reloaded = true;
     window.location.reload();
   });
 }
 
+let updateRequested = false;
+
 export function applyUpdate() {
+  updateRequested = true;
   waiting?.postMessage({ type: 'SKIP_WAITING' });
 }

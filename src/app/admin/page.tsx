@@ -7,8 +7,9 @@ import { TeamsAdmin } from '@/components/admin/TeamsAdmin';
 import { SettingsAdmin } from '@/components/admin/SettingsAdmin';
 import { DataSourcesAdmin } from '@/components/admin/DataSourcesAdmin';
 import { ManualEntry } from '@/components/admin/ManualEntry';
+import { RotationAdmin } from '@/components/admin/RotationAdmin';
 
-type Tab = 'data' | 'manual' | 'teams' | 'users' | 'settings';
+type Tab = 'data' | 'manual' | 'rotation' | 'teams' | 'users' | 'settings';
 
 export default function AdminPage() {
   const auth = useAuth();
@@ -24,6 +25,7 @@ export default function AdminPage() {
           options={[
             { value: 'data', label: 'Data sources' },
             { value: 'manual', label: 'Manual entry' },
+            { value: 'rotation', label: 'Scout rotation' },
             { value: 'teams', label: 'Teams & aliases' },
             { value: 'users', label: 'Users & roles' },
             { value: 'settings', label: 'Settings' },
@@ -32,6 +34,7 @@ export default function AdminPage() {
       </div>
       {tab === 'data' && <DataSourcesAdmin />}
       {tab === 'manual' && <ManualEntry />}
+      {tab === 'rotation' && <RotationAdmin />}
       {tab === 'teams' && <TeamsAdmin />}
       {tab === 'users' && <UsersAdmin />}
       {tab === 'settings' && <SettingsAdmin />}

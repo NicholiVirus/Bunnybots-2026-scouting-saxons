@@ -17,3 +17,4 @@ blob-report/
 # misc
 .DS_Store
 *.log
+test-results/

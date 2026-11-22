@@ -6,6 +6,8 @@ import type { MatchRow } from '@/data/types';
 import { FLAG_LABEL } from '@/game/harvestHavoc.config';
 import { Badge, Card } from './ui';
 import { TeamChip } from './TeamChip';
+import { useAnalytics } from '@/analytics/AnalyticsProvider';
+import { allianceChecks } from '@/analytics/accuracy';
 
 export function MatchScouting({ m }: { m: MatchRow }) {
   const subs = useLiveQuery(() => db.scout_submissions.where('match_key').equals(m.key).toArray(), [m.key], []);
@@ -17,11 +19,20 @@ export function MatchScouting({ m }: { m: MatchRow }) {
     [subs],
     [],
   );
+  const model = useAnalytics();
+  const checks = model ? allianceChecks([m], model.records) : [];
   const live = subs.filter((s) => !s.discarded && s.status === 'submitted');
   if (!live.length) return null;
   const byId = new Map(live.map((s) => [s.id, s]));
   return (
     <Card title={`Scouting (${live.length} submission${live.length === 1 ? '' : 's'})`}>
+      {checks.map((c) => (
+        <p key={c.alliance} className={`mb-2 rounded-lg p-2 text-sm ${c.warn ? 'bg-warn/10 text-warn' : 'bg-good/10 text-good'}`}>
+          {c.alliance === 'red' ? 'Red' : 'Blue'}: scouts counted {c.scoutedPieces.toFixed(1)} scored pieces, field says {c.officialPieces} (
+          {c.relDiff > 0 ? '+' : ''}
+          {Math.round(c.relDiff * 100)}%){c.warn ? ' — check this match’s scouting' : ' ✓'}
+        </p>
+      ))}
       <ul className="space-y-2">
         {reports
           .filter((r) => byId.has(r.submission_id))
