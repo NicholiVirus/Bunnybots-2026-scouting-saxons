@@ -9,6 +9,7 @@ import { registerServiceWorker } from '@/lib/pwa';
 import { usePrefs } from '@/lib/prefs';
 import { Splash } from './Splash';
 import { BackgroundServices } from './BackgroundServices';
+import { AnalyticsProvider } from '@/analytics/AnalyticsProvider';
 
 export function Providers({ children }: { children: ReactNode }) {
   const auth = useAuth();
@@ -36,10 +37,10 @@ export function Providers({ children }: { children: ReactNode }) {
   }, [prefs.theme]);
 
   return (
-    <>
+    <AnalyticsProvider>
       {children}
       <BackgroundServices />
       <Splash />
-    </>
+    </AnalyticsProvider>
   );
 }

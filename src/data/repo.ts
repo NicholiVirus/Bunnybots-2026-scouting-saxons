@@ -39,7 +39,7 @@ async function enqueue(item: Omit<OutboxItem, 'id' | 'created_at' | 'attempts' |
 }
 
 export interface WriteOpts {
-  /** false = local only (demo data, server-sourced rows). Default: follow sync state. */
+  /** false = local only (demo data, server-sourced rows). Otherwise queued whenever server sync is active. */
   sync?: boolean;
 }
 
@@ -48,7 +48,7 @@ export async function putRows<T extends object>(name: SyncedTable, rows: T[], op
   if (!rows.length) return;
   const stamped = rows.map((r) => ({ ...(r as AnyRow), updated_at: nowIso() }));
   await table(name).bulkPut(stamped);
-  if (opts.sync ?? serverSyncActive()) {
+  if (opts.sync !== false && serverSyncActive()) {
     for (const r of stamped) {
       const payload: AnyRow = { ...r };
       delete payload.updated_at; // server clock owns updated_at
@@ -66,7 +66,7 @@ export async function deleteRows(name: SyncedTable, items: object[], opts: Write
   const t = table(name);
   for (const r of items as AnyRow[]) {
     await t.delete(r[keyField] as string | number);
-    if (opts.sync ?? serverSyncActive()) {
+    if (opts.sync !== false && serverSyncActive()) {
       const payload: AnyRow = { ...r, deleted_at: nowIso() };
       delete payload.updated_at;
       await enqueue({ kind: 'upsert', table: name, key: rowKey(name, r), payload });
@@ -94,7 +94,7 @@ export async function saveScoutingBundle(b: ScoutingBundle, opts: WriteOpts & { 
   });
   // Live taps are kept local (autosave); the bundle is queued on status changes
   // (draft → live → submitted) and on post-submit edits.
-  if ((opts.push ?? true) && (opts.sync ?? serverSyncActive())) {
+  if ((opts.push ?? true) && opts.sync !== false && serverSyncActive()) {
     const strip = <T extends AnyRow>(r: T) => {
       const c: AnyRow = { ...r };
       delete c.updated_at;
