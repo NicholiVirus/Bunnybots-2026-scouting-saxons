@@ -48,7 +48,7 @@ export const NAV: NavItem[] = [
   { href: '/pit/', label: 'Pit scouting', icon: Wrench, min: 'scout' },
   { href: '/transfer/', label: 'QR transfer', icon: QrCode },
   { href: '/leaderboard/', label: 'Scout leaderboard', icon: Medal },
-  { href: '/admin/', label: 'Admin', icon: Shield, min: 'admin' },
+  { href: '/admin/', label: 'Admin', icon: Shield, min: 'strategist' },
   { href: '/settings/', label: 'Settings', icon: Settings },
 ];
 
