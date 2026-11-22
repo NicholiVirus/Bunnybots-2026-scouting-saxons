@@ -2,7 +2,7 @@
 import { useMemo, useState } from 'react';
 import { HelpCircle } from 'lucide-react';
 import { OUR_TEAMS, isOurTeam } from '@/config/event';
-import { HARVEST_HAVOC as G } from '@/game/harvestHavoc.config';
+import { MAX_RP_PER_MATCH } from '@/game/harvestHavoc.config';
 import { remainingMatchesFor } from '@/analytics/schedule';
 import { forecastMatch } from '@/analytics/predict';
 import type { AcceptDeclineResult, EventPrediction, SimInputs } from '@/selection/eventSim';
@@ -62,7 +62,7 @@ export function Predictor({ s, pred, busy }: { s: Selection; pred: EventPredicti
                 {need !== null && remaining.length > 0 && (
                   <>
                     {' '}
-                    · needs ≈ <b className="text-fg">{fmt(need, 0)} more RP</b> (≈{fmt(need / remaining.length, 1)}/match of max {G.rankingPoints.win + 3}) to reach the top {N}
+                    · needs ≈ <b className="text-fg">{fmt(need, 0)} more RP</b> (≈{fmt(need / remaining.length, 1)}/match of max {MAX_RP_PER_MATCH}) to reach the top {N}
                   </>
                 )}
               </div>

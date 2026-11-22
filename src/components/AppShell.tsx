@@ -27,6 +27,7 @@ import { Badge, Button, Modal, Spinner, cx } from './ui';
 import { SyncBadge } from './SyncBadge';
 import { OurTeamSwitch } from './OurTeamSwitch';
 import { LoginScreen } from './LoginScreen';
+import { InstallBanner } from './InstallBanner';
 
 interface NavItem {
   href: string;
@@ -88,7 +89,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col border-r border-line bg-surface px-3 py-4 lg:flex">
         <Link href="/" className="mb-4 flex items-center gap-2 px-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          { }
           <img src={brand.still ?? '/icons/icon-192.png'} alt="" className="h-9 w-9" />
           <div className="leading-tight">
             <div className="font-bold">Saxon Scout</div>
@@ -115,7 +116,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <header className="safe-top sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
           <div className="flex h-14 items-center gap-2 px-3">
             <Link href="/" className="flex items-center gap-2 lg:hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
+              { }
               <img src={brand.still ?? '/icons/icon-192.png'} alt="" className="h-8 w-8" />
               <span className="hidden font-bold sm:inline">Saxon Scout</span>
             </Link>
@@ -137,6 +138,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           )}
         </header>
 
+        <InstallBanner />
         <main className="flex-1 px-3 pb-28 pt-4 sm:px-4 lg:pb-8">{body}</main>
 
         {/* Mobile bottom tabs */}

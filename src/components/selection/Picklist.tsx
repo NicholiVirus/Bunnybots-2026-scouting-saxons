@@ -19,14 +19,23 @@ export function Picklist({ s }: { s: Selection }) {
   const auth = useAuth();
   const photos = usePhotoMap();
   const [filter, setFilter] = useState<TeamFilter>({});
+  const [poolSort, setPoolSort] = useState<'rank' | 'score' | 'points' | 'cycle'>('rank');
   const [dnpFor, setDnpFor] = useState<string | null>(null);
   const [noteFor, setNoteFor] = useState<PicklistEntry | null>(null);
   const byTier = (t: PickTier) => s.entries.filter((e) => e.tier === t).sort((a, b) => a.position - b.position);
   const listed = new Set(s.entries.map((e) => e.team_id));
-  const pool = useMemo(
-    () => s.ranked.filter((t) => t !== s.pickingAs && !listed.has(t) && (!s.model || applyFilter(s.model.teams.get(t)!, filter))),
-    [s.ranked, s.pickingAs, listed, s.model, filter], // eslint-disable-line react-hooks/exhaustive-deps
-  );
+  const pool = useMemo(() => {
+    const list = s.ranked.filter((t) => t !== s.pickingAs && !listed.has(t) && (!s.model || applyFilter(s.model.teams.get(t)!, filter)));
+    const score = new Map(s.first.map((r) => [r.team, r.score]));
+    const st = (t: string) => s.model?.teams.get(t);
+    const key: Record<typeof poolSort, (t: string) => number> = {
+      rank: (t) => s.ranked.indexOf(t),
+      score: (t) => -(score.get(t) ?? 0),
+      points: (t) => -(st(t)?.n ? st(t)!.points.mean : -1),
+      cycle: (t) => st(t)?.cycles?.median ?? 999,
+    };
+    return [...list].sort((a, b) => key[poolSort](a) - key[poolSort](b));
+  }, [s.ranked, s.pickingAs, listed, s.model, filter, poolSort, s.first]);  
   const voteSum = (team: string) => s.votes.filter((v) => v.team_id === team && !v.deleted_at).reduce((a, v) => a + v.value, 0);
   const me = whoAmI();
   const myVote = (team: string) => s.votes.find((v) => v.team_id === team && (me.id ? v.user_id === me.id : v.user_name === me.name));
@@ -146,7 +155,17 @@ export function Picklist({ s }: { s: Selection }) {
         );
       })}
 
-      <Card title={`Pool — not on a list (${pool.length})`}>
+      <Card
+        title={`Pool — not on a list (${pool.length})`}
+        actions={
+          <select className="h-9 rounded-lg border border-line bg-surface-2 px-2 text-sm" value={poolSort} onChange={(e) => setPoolSort(e.target.value as typeof poolSort)} aria-label="Sort pool">
+            <option value="rank">Sort: qual rank</option>
+            <option value="score">Sort: pick score</option>
+            <option value="points">Sort: avg points</option>
+            <option value="cycle">Sort: median cycle</option>
+          </select>
+        }
+      >
         <div className="mb-3">
           <TeamFilters value={filter} onChange={setFilter} />
         </div>
@@ -158,7 +177,10 @@ export function Picklist({ s }: { s: Selection }) {
               <li key={t} className={cx('flex flex-wrap items-center gap-2 py-1.5', stt && 'opacity-50')}>
                 <TeamChip team={t} photo={photos.get(t)} size={26} showName />
                 {stt && <Badge tone="warn">{stt.label}</Badge>}
-                <span className="text-xs text-muted tnum">{st?.n ? `${fmt(st.points.mean)} pts (n=${st.n})` : 'no scouting'}</span>
+                <span className="text-xs text-muted tnum">
+                  {st?.n ? `${fmt(st.points.mean)} pts (n=${st.n})` : 'no scouting'}
+                  {st?.cycles ? ` · ${fmt(st.cycles.median)}s cycle (n=${st.cycles.n})` : ''}
+                </span>
                 {s.canEditList && (
                   <span className="ml-auto flex gap-1">
                     <Button size="sm" onClick={() => void add(t, 'first')} data-testid={`add-first-${t}`}>

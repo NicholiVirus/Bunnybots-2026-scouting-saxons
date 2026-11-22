@@ -25,7 +25,9 @@ const skip = (rel) =>
   rel.endsWith('.map') ||
   rel.endsWith('.txt') || // RSC payloads are not needed for a static SPA-style export
   rel.startsWith('icons/splash/') || // iOS-only launch images, fetched by the OS
-  rel === '404.html';
+  rel === '404.html' ||
+  rel === '_headers' || // Cloudflare config files are not served
+  rel === '_redirects';
 
 const files = walk(outDir)
   .map((p) => path.relative(outDir, p).split(path.sep).join('/'))

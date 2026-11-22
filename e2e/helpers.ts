@@ -43,7 +43,7 @@ export async function idbCount(page: Page, store: string, filter?: string): Prom
         r.onsuccess = () => res(r.result);
       });
       db.close();
-      // eslint-disable-next-line no-new-func
+       
       const f = filter ? (new Function('x', `return ${filter}`) as (x: Record<string, unknown>) => boolean) : () => true;
       return all.filter(f).length;
     },

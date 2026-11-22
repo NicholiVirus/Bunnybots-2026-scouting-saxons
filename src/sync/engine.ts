@@ -15,7 +15,7 @@ import type { Table } from 'dexie';
 import { db, kvGet, kvSet } from '@/data/db';
 import { registerPushKick } from '@/data/repo';
 import type { OutboxItem, SyncedTable } from '@/data/types';
-import { classifyError, getSupabase, publicStorageUrl, type SbError } from './supabase';
+import { classifyError, getSupabase, isOffline, publicStorageUrl, type SbError } from './supabase';
 import { syncStatus } from './status';
 import { SYNC_TABLES, TABLE_KEY, type TableSpec } from './tables';
 
@@ -25,7 +25,7 @@ const tableOf = (name: string) => (db as unknown as Record<string, Table<AnyRow,
 const EPOCH = '1970-01-01T00:00:00.000Z';
 const PAGE = 1000;
 
-class SyncEngine {
+export class SyncEngine {
   private sb: SupabaseClient | null = null;
   private channel: RealtimeChannel | null = null;
   private timers: ReturnType<typeof setInterval>[] = [];
@@ -40,7 +40,7 @@ class SyncEngine {
     this.sb = getSupabase();
     if (!this.sb) return;
     this.running = true;
-    syncStatus.set({ active: true, configured: true, online: navigator.onLine });
+    syncStatus.set({ active: true, configured: true, online: !isOffline() });
     registerPushKick(() => void this.push());
     window.addEventListener('online', this.onOnline);
     window.addEventListener('offline', this.onOffline);
@@ -51,6 +51,13 @@ class SyncEngine {
     void this.refreshCounts();
     void this.pullAll().then(() => this.push());
     this.subscribeRealtime();
+  }
+
+  /** Tests only: attach a client without timers / realtime. */
+  attachForTest(sb: SupabaseClient) {
+    this.sb = sb;
+    this.running = true;
+    this.nextPushAt = 0;
   }
 
   stop() {
@@ -92,7 +99,7 @@ class SyncEngine {
       this.pushAgain = true;
       return;
     }
-    if (Date.now() < this.nextPushAt || !navigator.onLine) return;
+    if (Date.now() < this.nextPushAt || isOffline()) return;
     this.pushing = true;
     syncStatus.set({ pushing: true });
     try {
@@ -206,7 +213,7 @@ class SyncEngine {
   private pullingNow = false;
 
   async pullAll(full = false) {
-    if (!this.sb || !this.running || this.pullingNow || !navigator.onLine) return;
+    if (!this.sb || !this.running || this.pullingNow || isOffline()) return;
     this.pullingNow = true;
     syncStatus.set({ pulling: true });
     let ok = true;

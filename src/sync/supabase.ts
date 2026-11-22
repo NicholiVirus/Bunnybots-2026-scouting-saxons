@@ -46,12 +46,15 @@ export function publicStorageUrl(bucket: string, path: string): string | null {
 
 export type SbError = { message: string; code?: string; status?: number };
 
+/** Only an explicit `false` means offline (some runtimes don't implement navigator.onLine). */
+export const isOffline = () => typeof navigator !== 'undefined' && navigator.onLine === false;
+
 export function classifyError(err: SbError | null | undefined, status?: number): 'network' | 'auth' | 'denied' | 'invalid' | 'server' {
   if (!err) return 'server';
   const msg = String(err.message || '');
   const code = String(err.code || '');
   const st = status ?? err.status ?? 0;
-  if ((typeof navigator !== 'undefined' && !navigator.onLine) || st === 0 || /failed to fetch|networkerror|load failed|network request failed|fetch failed|timeout/i.test(msg))
+  if (isOffline() || st === 0 || /failed to fetch|networkerror|load failed|network request failed|fetch failed|timeout/i.test(msg))
     return 'network';
   if (st === 401 || code === 'PGRST301' || code === 'PGRST303' || /jwt/i.test(msg)) return 'auth';
   if (st === 403 || code === '42501' || /row-level security|permission denied|only an admin/i.test(msg)) return 'denied';

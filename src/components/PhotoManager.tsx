@@ -38,7 +38,7 @@ export function PhotoManager({ team }: { team: string }) {
           return (
             <figure key={p.id} className="relative shrink-0">
               {u ? (
-                // eslint-disable-next-line @next/next/no-img-element
+                 
                 <img src={u} alt={`Team ${team}`} className="h-40 w-40 rounded-xl object-cover sm:h-48 sm:w-48" />
               ) : (
                 <div className="flex h-40 w-40 items-center justify-center rounded-xl bg-surface-2 text-xs text-muted">photo</div>

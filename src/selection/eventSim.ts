@@ -271,9 +271,15 @@ export interface BracketPrediction {
   runs: number;
 }
 
-export function predictBracket(alliances: { number: number; teams: string[] }[], inp: Pick<SimInputs, 'pools' | 'eventPool'>, runs: number, seed: number): BracketPrediction {
+export function predictBracket(
+  alliances: { number: number; teams: string[] }[],
+  inp: Pick<SimInputs, 'pools' | 'eventPool'>,
+  runs: number,
+  seed: number,
+  opts: { samples?: number; h2h?: boolean } = {},
+): BracketPrediction {
   const rng = mulberry32(seed);
-  const samples = alliances.map((a) => allianceSampler(a.teams, inp, rng));
+  const samples = alliances.map((a) => allianceSampler(a.teams, inp, rng, opts.samples ?? 800));
   const bySeed = new Map(alliances.map((a, i) => [a.number, samples[i]]));
   const res = simulateBracket(
     Math.max(...alliances.map((a) => a.number), 0),
@@ -284,7 +290,7 @@ export function predictBracket(alliances: { number: number; teams: string[] }[],
     runs,
     rng,
   );
-  const h2h = samples.map((a) => samples.map((b) => headToHead(a, b, rng, 600)));
+  const h2h = opts.h2h === false ? [] : samples.map((a) => samples.map((b) => headToHead(a, b, rng, 600)));
   return {
     alliances: alliances.map((a, i) => ({
       number: a.number,
@@ -320,7 +326,7 @@ export function acceptOrDecline(inp: SimInputs, ranked: string[], our: string, i
     // A) accept
     const a = completeDraft(stepDraft(start, { action: 'pick', alliance: inviting, team_id: our }), inp, rng);
     const formedA = a.alliances.filter((x) => x.captain).map((x) => ({ number: x.number, teams: [x.captain!, ...x.picks.filter(Boolean)] as string[] }));
-    const bA = predictBracket(formedA, inp, opts.bracketRuns, Math.floor(rng() * 1e9));
+    const bA = predictBracket(formedA, inp, opts.bracketRuns, Math.floor(rng() * 1e9), { samples: 300, h2h: false });
     const mine = bA.alliances.find((x) => x.number === inviting);
     joinWin += mine?.pWin ?? 0;
     joinFin += mine?.pFinals ?? 0;
@@ -331,7 +337,7 @@ export function acceptOrDecline(inp: SimInputs, ranked: string[], our: string, i
     if (ourAlliance) {
       decCaptain++;
       const formedB = b.alliances.filter((x) => x.captain).map((x) => ({ number: x.number, teams: [x.captain!, ...x.picks.filter(Boolean)] as string[] }));
-      const bB = predictBracket(formedB, inp, opts.bracketRuns, Math.floor(rng() * 1e9));
+      const bB = predictBracket(formedB, inp, opts.bracketRuns, Math.floor(rng() * 1e9), { samples: 300, h2h: false });
       const m2 = bB.alliances.find((x) => x.number === ourAlliance.number);
       decWin += m2?.pWin ?? 0;
       decFin += m2?.pFinals ?? 0;

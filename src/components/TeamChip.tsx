@@ -40,7 +40,7 @@ export function usePhotoMap(): Map<string, string> {
 
 export function TeamAvatar({ team, url, size = 32 }: { team: string; url?: string | null; size?: number }) {
   return url ? (
-    // eslint-disable-next-line @next/next/no-img-element
+     
     <img src={url} alt={`Team ${team}`} width={size} height={size} loading="lazy" className="shrink-0 rounded-lg object-cover" style={{ width: size, height: size }} />
   ) : (
     <span

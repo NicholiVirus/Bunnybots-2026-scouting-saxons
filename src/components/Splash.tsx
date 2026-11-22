@@ -61,7 +61,7 @@ export function Splash() {
       else finish();
     })();
     return () => clearTimeout(hardCap);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   useEffect(() => {
@@ -99,7 +99,7 @@ export function Splash() {
       };
     }
     return () => clearTimeout(cap);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [src]);
 
   if (!visible) return null;
@@ -114,7 +114,7 @@ export function Splash() {
       role="button"
     >
       {src && (src.type === 'svg' || src.type === 'png' || src.type === 'gif') && (
-        // eslint-disable-next-line @next/next/no-img-element
+         
         <img
           src={src.url}
           alt="Saxon Robotics"
@@ -126,7 +126,7 @@ export function Splash() {
         <video src={src.url} autoPlay muted playsInline onEnded={finish} onError={finish} className="h-64 w-64 object-contain sm:h-80 sm:w-80" />
       )}
       {src && src.type === 'video' && reduced && (
-        // eslint-disable-next-line @next/next/no-img-element
+         
         <img src={brand.still ?? '/icons/icon-512.png'} alt="Saxon Robotics" className="h-56 w-56 object-contain" onError={finish} />
       )}
       {src && src.type === 'lottie' && <div ref={lottieRef} className="h-64 w-64 sm:h-80 sm:w-80" />}

@@ -75,7 +75,9 @@ describe('event prediction (449 sim, replayed after Q20)', () => {
     const alliances = [1, 2, 3, 4].map((n) => ({ number: n, teams: ranked.slice((n - 1) * 3, n * 3) }));
     const br = predictBracket(alliances, inputs, 1000, 5);
     expect(br.alliances.reduce((a, x) => a + x.pWin, 0)).toBeCloseTo(1, 6);
-    const ad = acceptOrDecline({ ...inputs, remaining: [], rankedNow: ranked }, ranked, ranked[5], 1, { drafts: 10, bracketRuns: 200, seed: 9 });
+    const t0 = Date.now();
+    const ad = acceptOrDecline({ ...inputs, remaining: [], rankedNow: ranked }, ranked, ranked[5], 1, { drafts: 40, bracketRuns: 400, seed: 9 });
+    expect(Date.now() - t0).toBeLessThan(2000); // same settings as the UI
     expect(ad.join.pWin).toBeGreaterThanOrEqual(0);
     expect(ad.join.pWin).toBeLessThanOrEqual(1);
     expect(['accept', 'decline', 'close']).toContain(ad.verdict);

@@ -28,7 +28,7 @@ export function LoginScreen() {
   return (
     <div className="mx-auto max-w-sm py-6">
       <div className="mb-6 flex flex-col items-center text-center">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+        { }
         <img src={brand.still ?? '/icons/icon-192.png'} alt="" className="mb-3 h-20 w-20" />
         <h1 className="text-2xl font-bold">Saxon Scout</h1>
         <p className="text-sm text-muted">FRC 611 + 526 · Blair BunnyBots 2026</p>

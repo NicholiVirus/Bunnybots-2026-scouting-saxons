@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, Trophy } from 'lucide-react';
 import { OUR_TEAMS } from '@/config/event';
+import { HARVEST_HAVOC as G } from '@/game/harvestHavoc.config';
 import { buildPools } from '@/analytics/strength';
 import { simulateAlliance } from '@/analytics/allianceSim';
 import { synergy } from '@/analytics/synergy';
@@ -130,7 +131,8 @@ export function Simulator({ s, inputs }: { s: Selection; inputs: SimInputs | nul
           </div>
         )}
         <p className="mt-3 text-xs text-muted">
-          Uses the real limits: 5 pieces per shelf (extras cascade down), cakes only from the oven trade (3 carrots → 1 cake, max 9 + 1 prestaged), hauls ≤3 when parked.
+          Uses the real limits: {G.pantry.shelfCapacity} pieces per shelf (extras cascade down), cakes only from the oven trade ({G.cakeEconomy.ovenCarrotsPerCake} carrots → 1 cake, max{' '}
+          {G.supply.tradeableCakesPerAlliance} + {G.supply.prestagedCakesPerAlliance} prestaged), hauls ≤{G.haul.maxPiecesPerRobot} when parked.
         </p>
       </Card>
 

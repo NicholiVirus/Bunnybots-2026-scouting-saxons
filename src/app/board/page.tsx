@@ -80,7 +80,7 @@ function PublicBoardInner() {
   return (
     <div className="min-h-dvh bg-bg p-4 text-fg sm:p-8">
       <header className="mb-6 flex items-center gap-3">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+        { }
         <img src={brand.still ?? '/icons/icon-192.png'} alt="" className="h-12 w-12" />
         <div>
           <h1 className="text-2xl font-black">Alliance selection — live</h1>
