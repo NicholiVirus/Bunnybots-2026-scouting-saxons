@@ -9,8 +9,8 @@
     "node": ">=20.9"
   },
   "scripts": {
-    "dev": "node scripts/brand-manifest.mjs && next dev",
-    "build": "node scripts/brand-manifest.mjs && next build && node scripts/build-sw.mjs",
+    "dev": "node scripts/brand-manifest.mjs && node scripts/build-worker.mjs && next dev",
+    "build": "node scripts/brand-manifest.mjs && node scripts/build-worker.mjs && next build && node scripts/build-sw.mjs",
     "start": "node scripts/serve.mjs 3000",
     "brand": "node scripts/brand.mjs && node scripts/brand-manifest.mjs",
     "typecheck": "tsc --noEmit",
@@ -51,6 +51,7 @@
     "@types/qrcode": "1.5.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "esbuild": "^0.28.2",
     "fake-indexeddb": "6.2.8",
     "sharp": "0.35.5",
     "tailwindcss": "4.3.5",

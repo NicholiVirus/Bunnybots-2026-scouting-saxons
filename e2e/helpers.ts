@@ -50,3 +50,12 @@ export async function idbCount(page: Page, store: string, filter?: string): Prom
     { store, filter },
   );
 }
+
+/** Replay the demo event up to a qual (no playoffs / alliances yet) via Admin → Data sources. */
+export async function setDemoCutoff(page: Page, label: string) {
+  await page.goto('/admin/');
+  await waitForDemo(page);
+  await page.getByRole('combobox').first().selectOption({ label });
+  await page.getByRole('button', { name: 'Reload demo' }).click();
+  await page.getByText(/^Loaded \d+ quals/).waitFor({ timeout: 30_000 });
+}

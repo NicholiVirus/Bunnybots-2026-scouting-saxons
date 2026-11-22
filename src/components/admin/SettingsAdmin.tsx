@@ -4,7 +4,8 @@ import { useSettings } from '@/data/hooks';
 import { putRow } from '@/data/repo';
 import { SETTING_KEYS, type EventSettings } from '@/data/settings';
 import { whoAmI } from '@/sync/auth';
-import { Card, Field, Toggle, inputCls } from '@/components/ui';
+import { Button, Card, Field, Toggle, inputCls } from '@/components/ui';
+import { uuid } from '@/lib/util';
 
 export async function saveSetting<K extends keyof EventSettings>(key: K, value: EventSettings[K]) {
   await putRow('settings', { key: SETTING_KEYS[key], value, updated_by: whoAmI().id });
@@ -66,6 +67,38 @@ export function SettingsAdmin() {
         <Toggle checked={s.splashEnabled} onChange={(v) => void saveSetting('splashEnabled', v)} label="Launch logo animation for everyone" />
       </div>
       <div className="mt-2 text-xs text-muted">Changes save when you leave a field.</div>
+      <PublicBoardSettings />
     </Card>
+  );
+}
+
+function PublicBoardSettings() {
+  const s = useSettings();
+  const pb = s.publicBoard;
+  const link = pb.token && typeof window !== 'undefined' ? `${window.location.origin}/board/?t=${pb.token}` : '';
+  const newToken = () => uuid().replace(/-/g, '') + uuid().replace(/-/g, '').slice(0, 8);
+  return (
+    <div className="mt-6 rounded-2xl border border-warn/50 p-3">
+      <div className="mb-2 font-semibold">Public alliance-selection board</div>
+      <p className="mb-2 text-sm text-warn">Anyone with this link can see your pick order. (Notes and Do-Not-Pick reasons are never shared.)</p>
+      <Toggle
+        checked={pb.enabled}
+        onChange={(v) => void saveSetting('publicBoard', { enabled: v, token: pb.token || newToken() })}
+        label={pb.enabled ? 'Public link is ON' : 'Public link is OFF'}
+      />
+      {pb.enabled && link && (
+        <div className="mt-2 space-y-2">
+          <input className={inputCls} readOnly value={link} onFocus={(e) => e.target.select()} />
+          <div className="flex gap-2">
+            <Button size="sm" onClick={() => void navigator.clipboard?.writeText(link)}>
+              Copy link
+            </Button>
+            <Button size="sm" variant="danger" onClick={() => void saveSetting('publicBoard', { enabled: true, token: newToken() })}>
+              Revoke &amp; make a new link
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
