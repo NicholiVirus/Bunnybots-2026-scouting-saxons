@@ -5,6 +5,8 @@ import { Card, PageTitle, Badge } from '@/components/ui';
 import { EVENT, OUR_TEAMS, OUR_TEAM_NAMES } from '@/config/event';
 import { useTeams } from '@/data/hooks';
 import { useAuth } from '@/sync/auth';
+import { NextMatchCards } from '@/components/NextMatchCards';
+import { FreshnessBanner } from '@/components/FreshnessBanner';
 
 export default function HomePage() {
   const teams = useTeams();
@@ -14,6 +16,8 @@ export default function HomePage() {
       <PageTitle sub={`${EVENT.name} · ${EVENT.venue}`}>
         Saxon Robotics <span className="text-saxon">{OUR_TEAMS.join(' · ')}</span>
       </PageTitle>
+      <FreshnessBanner />
+      <NextMatchCards />
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
           { href: '/scout/', label: 'Scout a match', icon: ClipboardPen },

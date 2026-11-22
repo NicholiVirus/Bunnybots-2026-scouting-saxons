@@ -66,6 +66,8 @@ export interface TeamStats {
   records: TeamMatchRecord[];
   n: number;
   points: Summary;
+  /** Mean of matches with no died / no-show / brownout / E-stop (pairs with reliability). */
+  functioningMean: number | null;
   recent3: number | null;
   byCategory: { auto: number; teleop: number; endgame: number; pantryCarrot: number; pantryCake: number; oven: number; taxi: number; park: number; haul: number };
   pieces: { carrot: Record<Shelf, number>; cake: Record<Shelf, number>; ovenCarrot: number; ovenCake: number; cakes: number; l3: number };
@@ -354,6 +356,10 @@ export function buildModel(input: ModelInput): AnalyticsModel {
       records: rs,
       n: rs.length,
       points: summarize(pts),
+      functioningMean: (() => {
+        const ok = rs.filter((r) => !r.flags.some(isReliabilityFlag)).map((r) => r.points.total);
+        return ok.length ? mean(ok) : rs.length ? mean(pts) : null;
+      })(),
       recent3,
       byCategory,
       pieces,
