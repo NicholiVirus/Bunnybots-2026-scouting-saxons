@@ -1,0 +1,68 @@
+{
+  "file": "/brand/logo.svg",
+  "type": "svg",
+  "still": "/brand/logo.svg",
+  "version": "33bd7dda7d",
+  "splash": [
+    {
+      "url": "/icons/splash/splash-1024x1366@2x.png",
+      "w": 1024,
+      "h": 1366,
+      "dpr": 2
+    },
+    {
+      "url": "/icons/splash/splash-375x667@2x.png",
+      "w": 375,
+      "h": 667,
+      "dpr": 2
+    },
+    {
+      "url": "/icons/splash/splash-390x844@3x.png",
+      "w": 390,
+      "h": 844,
+      "dpr": 3
+    },
+    {
+      "url": "/icons/splash/splash-393x852@3x.png",
+      "w": 393,
+      "h": 852,
+      "dpr": 3
+    },
+    {
+      "url": "/icons/splash/splash-402x874@3x.png",
+      "w": 402,
+      "h": 874,
+      "dpr": 3
+    },
+    {
+      "url": "/icons/splash/splash-430x932@3x.png",
+      "w": 430,
+      "h": 932,
+      "dpr": 3
+    },
+    {
+      "url": "/icons/splash/splash-440x956@3x.png",
+      "w": 440,
+      "h": 956,
+      "dpr": 3
+    },
+    {
+      "url": "/icons/splash/splash-768x1024@2x.png",
+      "w": 768,
+      "h": 1024,
+      "dpr": 2
+    },
+    {
+      "url": "/icons/splash/splash-810x1080@2x.png",
+      "w": 810,
+      "h": 1080,
+      "dpr": 2
+    },
+    {
+      "url": "/icons/splash/splash-820x1180@2x.png",
+      "w": 820,
+      "h": 1180,
+      "dpr": 2
+    }
+  ]
+}

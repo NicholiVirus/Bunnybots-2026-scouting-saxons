@@ -1,0 +1,140 @@
+@import 'tailwindcss';
+
+/* Dark mode is the default (class on <html>); light mode is opt-in per device. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Theme tokens ───────────────────────────────────────────────────────────
+   SAXON COLOR: change --saxon (and --saxon-ink for text on it) to rebrand. */
+:root {
+  --saxon: #f2b705;
+  --saxon-ink: #1b1400;
+  --red-alliance: #e5484d;
+  --blue-alliance: #3e7bfa;
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #eef0f4;
+  --border: #d9dde5;
+  --text: #11151c;
+  --muted: #5b6475;
+  --good: #16a34a;
+  --warn: #d97706;
+  --bad: #dc2626;
+}
+.dark {
+  --bg: #0b0e13;
+  --surface: #131821;
+  --surface-2: #1b2230;
+  --border: #283142;
+  --text: #e8ecf3;
+  --muted: #8d98ab;
+  --good: #22c55e;
+  --warn: #f59e0b;
+  --bad: #ef4444;
+}
+
+@theme inline {
+  --color-saxon: var(--saxon);
+  --color-saxon-ink: var(--saxon-ink);
+  --color-redA: var(--red-alliance);
+  --color-blueA: var(--blue-alliance);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--border);
+  --color-fg: var(--text);
+  --color-muted: var(--muted);
+  --color-good: var(--good);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Inter, sans-serif;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+body {
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+* {
+  -webkit-touch-callout: none;
+}
+input,
+textarea,
+select {
+  -webkit-touch-callout: default;
+}
+
+/* Tap targets: at least 48 px everywhere, 56 px on scoring buttons. */
+.tap {
+  min-height: 48px;
+  min-width: 48px;
+}
+.tap-lg {
+  min-height: 56px;
+  min-width: 56px;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Our robots (611 / 526) are highlighted in every list */
+.ours {
+  box-shadow: inset 3px 0 0 var(--saxon);
+  background: color-mix(in srgb, var(--saxon) 8%, transparent);
+}
+
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Splash animation (static logos): fade + scale-in + soft glow ≈ 1.5 s */
+@keyframes hh-splash-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.82);
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 28px color-mix(in srgb, var(--saxon) 70%, transparent));
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: drop-shadow(0 0 14px color-mix(in srgb, var(--saxon) 45%, transparent));
+  }
+}
+.hh-splash-anim {
+  animation: hh-splash-in 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes hh-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+.hh-splash-out {
+  animation: hh-fade-out 0.35s ease forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hh-splash-anim {
+    animation: none;
+  }
+}
+
+/* Projector mode: big type for the alliance-selection board */
+.projector {
+  font-size: 1.35rem;
+}

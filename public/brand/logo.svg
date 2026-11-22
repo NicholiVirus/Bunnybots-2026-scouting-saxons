@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Saxon Robotics 611 · 526">
+  <!-- PLACEHOLDER text mark. Replace with your real logo: see README → "Logo / splash". -->
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6c83a"/>
+      <stop offset="1" stop-color="#d99a00"/>
+    </linearGradient>
+  </defs>
+  <path d="M256 28 L452 92 V250 C452 360 368 440 256 484 C144 440 60 360 60 250 V92 Z" fill="#131821" stroke="url(#g)" stroke-width="18" stroke-linejoin="round"/>
+  <text x="256" y="196" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="64" fill="url(#g)" letter-spacing="2">SAXON</text>
+  <text x="256" y="252" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="34" fill="#e8ecf3" letter-spacing="6">ROBOTICS</text>
+  <line x1="150" y1="282" x2="362" y2="282" stroke="#f2b705" stroke-width="4" stroke-linecap="round"/>
+  <text x="256" y="356" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="66" fill="#e8ecf3">611 · 526</text>
+</svg>
