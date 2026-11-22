@@ -14,7 +14,7 @@ import type {
   Target,
   IntakeSource,
 } from '@/game/harvestHavoc.config';
-import type { AllianceBreakdown } from '@/game/scoring';
+import type { AllianceBreakdown, RpFlags } from '@/game/scoring';
 import type { TeamStatus } from '@/config/event';
 
 export type TeamId = string;
@@ -61,6 +61,8 @@ export interface MatchRow extends Synced {
   red_score: number | null;
   blue_score: number | null;
   breakdown?: { red: AllianceBreakdown; blue: AllianceBreakdown } | null;
+  /** Bonus-RP flags per alliance (from the field, the breakdown, or manual entry). */
+  rp?: { red: RpFlags; blue: RpFlags } | null;
   winner?: Alliance | 'tie' | null;
   /** Red-carded (disqualified) teams in this match. */
   dq?: TeamId[] | null;

@@ -5,12 +5,14 @@ import { useAuth, can } from '@/sync/auth';
 import { UsersAdmin } from '@/components/admin/UsersAdmin';
 import { TeamsAdmin } from '@/components/admin/TeamsAdmin';
 import { SettingsAdmin } from '@/components/admin/SettingsAdmin';
+import { DataSourcesAdmin } from '@/components/admin/DataSourcesAdmin';
+import { ManualEntry } from '@/components/admin/ManualEntry';
 
-type Tab = 'teams' | 'users' | 'settings';
+type Tab = 'data' | 'manual' | 'teams' | 'users' | 'settings';
 
 export default function AdminPage() {
   const auth = useAuth();
-  const [tab, setTab] = useState<Tab>('teams');
+  const [tab, setTab] = useState<Tab>('data');
   if (!can.admin(auth.role)) return <Empty title="Admins only">Ask an admin to promote your account.</Empty>;
   return (
     <div className="mx-auto max-w-5xl">
@@ -20,12 +22,16 @@ export default function AdminPage() {
           value={tab}
           onChange={setTab}
           options={[
+            { value: 'data', label: 'Data sources' },
+            { value: 'manual', label: 'Manual entry' },
             { value: 'teams', label: 'Teams & aliases' },
             { value: 'users', label: 'Users & roles' },
             { value: 'settings', label: 'Settings' },
           ]}
         />
       </div>
+      {tab === 'data' && <DataSourcesAdmin />}
+      {tab === 'manual' && <ManualEntry />}
       {tab === 'teams' && <TeamsAdmin />}
       {tab === 'users' && <UsersAdmin />}
       {tab === 'settings' && <SettingsAdmin />}

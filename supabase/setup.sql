@@ -192,6 +192,8 @@ create table if not exists public.matches (
   red_score int,
   blue_score int,
   breakdown jsonb,
+  -- bonus-RP flags per alliance: {"red":{"stocked":true,"baked":false,"dinner":true},"blue":{...}}
+  rp jsonb,
   winner text check (winner in ('red', 'blue', 'tie')),
   dq text[] default '{}',
   source text not null default 'manual' check (source in ('api', 'manual', 'csv', 'demo')),
