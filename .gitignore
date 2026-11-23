@@ -18,3 +18,7 @@ blob-report/
 .DS_Store
 *.log
 public/workers/
+
+# vercel
+.vercel
+.env*
