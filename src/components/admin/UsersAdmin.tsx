@@ -10,6 +10,7 @@ interface Row {
   display_name: string;
   email: string | null;
   role: Role;
+  is_master?: boolean;
   created_at: string;
 }
 
@@ -49,6 +50,15 @@ export function UsersAdmin() {
     await load();
   };
 
+  const iAmMaster = !!rows?.find((r) => r.id === auth.userId)?.is_master;
+  /** Why this role button is locked (mirrors the database rules), or null. */
+  const lockReason = (r: Row, role: Role): string | null => {
+    if (role === r.role) return null;
+    if (r.is_master) return 'The master admin cannot be demoted (SQL Editor only).';
+    if (r.role === 'admin' && r.id !== auth.userId && !iAmMaster) return 'Only the master admin can demote another admin.';
+    return null;
+  };
+
   const shown = (rows ?? []).filter((r) => !filter || `${r.display_name} ${r.email}`.toLowerCase().includes(filter.toLowerCase()));
 
   return (
@@ -61,8 +71,9 @@ export function UsersAdmin() {
       }
     >
       <p className="mb-3 text-sm text-muted">
-        New sign-ups start as <b>Viewer</b>. Promote scouts and strategists here (needs a connection). Roles are enforced by the database, not just this
-        screen.
+        New sign-ups start as <b>Viewer</b>. Promote scouts and strategists here (needs a connection). Anyone with the admin passcode can make themselves
+        Admin. The <b>master admin</b> cannot be demoted and is the only one who can demote other admins. Roles are enforced by the database, not just
+        this screen.
       </p>
       {err && <p className="mb-3 rounded-lg bg-bad/10 p-2 text-sm text-bad">{err}</p>}
       <input
@@ -77,7 +88,7 @@ export function UsersAdmin() {
           <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
             <div>
               <div className="font-medium">
-                {r.display_name || '(no name)'} {r.id === auth.userId && <Badge tone="saxon">you</Badge>}
+                {r.display_name || '(no name)'} {r.is_master && <Badge tone="saxon">master admin</Badge>} {r.id === auth.userId && <Badge>you</Badge>}
               </div>
               <div className="text-xs text-muted">{r.email}</div>
             </div>
@@ -86,7 +97,9 @@ export function UsersAdmin() {
                 <button
                   key={role}
                   onClick={() => void setRole(r.id, role)}
-                  className={`h-9 rounded-lg px-2.5 text-sm ${r.role === role ? 'bg-saxon text-saxon-ink font-semibold' : 'bg-surface-2 text-muted'}`}
+                  disabled={!!lockReason(r, role)}
+                  title={lockReason(r, role) ?? undefined}
+                  className={`h-9 rounded-lg px-2.5 text-sm disabled:opacity-35 ${r.role === role ? 'bg-saxon text-saxon-ink font-semibold' : 'bg-surface-2 text-muted'}`}
                 >
                   {role}
                 </button>

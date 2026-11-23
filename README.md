@@ -59,6 +59,8 @@ Open the site, **Create account**. **The very first account becomes Admin.** Eve
 
 **More admins:** anyone signed in can open **Admin** and enter the admin passcode (default `SSTI`) to become an Admin. The server checks the passcode (`public.claim_admin`), allows 5 wrong tries per 15 minutes per account, and the role change lands in the audit log. To change the passcode, run in SQL Editor: `update private.admin_passcode set sha256 = encode(sha256(convert_to(upper('NEWCODE'), 'UTF8')), 'hex');` and update `PASSCODE_SHA256` in `src/components/admin/PasscodeGate.tsx`.
 
+**Master admin:** one account is the master admin. It is always an Admin, cannot be demoted or removed through the app, and is the only account that can demote other admins (admins can still step down themselves). Change it only in SQL Editor: `update public.profiles set is_master = true, role = 'admin' where email = 'someone@example.com';` (and `set is_master = false` on the old one).
+
 > Locked out? In Supabase SQL Editor: `update public.profiles set role = 'admin' where email = 'you@example.com';`
 
 ### 2.7 Alternative host: Cloudflare Pages (free, any use)

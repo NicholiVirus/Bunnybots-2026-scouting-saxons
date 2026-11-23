@@ -11,7 +11,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 const root = path.resolve(__dirname, '..');
 const shim = readFileSync(path.join(root, 'tests', 'supabase-shim.sql'), 'utf8');
-const migration = ['0001_init.sql', '0002_admin_passcode.sql'].map((f) => readFileSync(path.join(root, 'migrations', f), 'utf8')).join('\n');
+const migration = ['0001_init.sql', '0002_admin_passcode.sql', '0003_master_admin.sql'].map((f) => readFileSync(path.join(root, 'migrations', f), 'utf8')).join('\n');
 const seed = readFileSync(path.join(root, 'seed.sql'), 'utf8');
 
 const U = {
@@ -33,7 +33,7 @@ async function asUser(id: string) {
 async function asAnon() {
   await db.exec(`reset role; set request.jwt.claim.sub = ''; set role anon;`);
 }
-const DENIED = /row-level security|permission denied|only an admin|cannot remove the last admin/i;
+const DENIED = /row-level security|permission denied|only an admin|cannot remove the last admin|master admin/i;
 
 async function rows(sql: string, params: unknown[] = []) {
   return (await db.query<Record<string, unknown>>(sql, params)).rows;
@@ -339,5 +339,63 @@ describe('Admin by passcode', () => {
     for (let i = 0; i < 5; i++) expect(await claim(`bad${i}`)).toBeNull();
     await expect(claim('SSTI')).rejects.toThrow(/too many wrong passcodes/);
     expect(await roleOf(U.scout2)).not.toBe('admin');
+  });
+});
+
+describe('Master admin', () => {
+  const M = '00000000-0000-4000-8000-0000000000b1'; // master
+  const A = '00000000-0000-4000-8000-0000000000b2'; // passcode admin
+  const B = '00000000-0000-4000-8000-0000000000b3'; // another passcode admin
+  const roleOf = async (id: string) => {
+    await asSuper();
+    return (await rows(`select role, is_master from public.profiles where id = $1`, [id]))[0];
+  };
+
+  beforeAll(async () => {
+    await asSuper();
+    for (const [id, n] of [[M, 'master'], [A, 'a'], [B, 'b']])
+      await db.query(`insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, '{}')`, [id, `${n}@example.com`]);
+    // the SQL Editor path makes the master
+    await db.query(`update public.profiles set role = 'admin', is_master = true where id = $1`, [M]);
+    for (const id of [A, B]) {
+      await asUser(id);
+      await rows(`select public.claim_admin('SSTI')`);
+    }
+  });
+
+  it('only the SQL Editor can make or unmake a master admin', async () => {
+    await asUser(A);
+    await expect(rows(`update public.profiles set is_master = true where id = $1`, [A])).rejects.toThrow(/permission denied|master admin/i);
+    await asUser(M);
+    await expect(rows(`update public.profiles set is_master = false where id = $1`, [M])).rejects.toThrow(/permission denied|master admin/i);
+    expect((await roleOf(M)).is_master).toBe(true);
+  });
+
+  it('other admins cannot demote the master admin, nor each other', async () => {
+    await asUser(A);
+    await expect(rows(`update public.profiles set role = 'viewer' where id = $1`, [M])).rejects.toThrow(/master admin cannot be demoted/);
+    await expect(rows(`update public.profiles set role = 'viewer' where id = $1`, [B])).rejects.toThrow(/only the master admin can demote/);
+    expect((await roleOf(M)).role).toBe('admin');
+    expect((await roleOf(B)).role).toBe('admin');
+  });
+
+  it('the master admin cannot be demoted even by themselves through the app', async () => {
+    await asUser(M);
+    await expect(rows(`update public.profiles set role = 'scout' where id = $1`, [M])).rejects.toThrow(/master admin cannot be demoted/);
+  });
+
+  it('the master admin can demote any admin; an admin can step down themselves', async () => {
+    await asUser(M);
+    expect(await affected(`update public.profiles set role = 'scout' where id = $1`, [B])).toBe(1);
+    expect((await roleOf(B)).role).toBe('scout');
+    await asUser(A);
+    expect(await affected(`update public.profiles set role = 'strategist' where id = $1`, [A])).toBe(1);
+    expect((await roleOf(A)).role).toBe('strategist');
+  });
+
+  it('the admin list flags the master admin first', async () => {
+    await asUser(M);
+    const list = await rows(`select id, is_master from public.admin_list_profiles()`);
+    expect(list[0]).toMatchObject({ id: M, is_master: true });
   });
 });
