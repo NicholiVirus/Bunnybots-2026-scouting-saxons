@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import brand from '@/generated/brand.json';
-import { signInWithGoogle, signInWithMagicLink, signInWithPassword, signUpWithPassword } from '@/sync/auth';
+import { signInWithMagicLink, signInWithPassword, signUpWithPassword } from '@/sync/auth';
 import { Button, Field, Segmented, inputCls } from './ui';
 
 export function LoginScreen() {
@@ -85,12 +85,6 @@ export function LoginScreen() {
           {mode === 'signin' ? 'Sign in' : mode === 'signup' ? 'Create account' : 'Send sign-in link'}
         </Button>
       </form>
-      <div className="my-4 flex items-center gap-3 text-xs text-muted">
-        <span className="h-px flex-1 bg-line" /> or <span className="h-px flex-1 bg-line" />
-      </div>
-      <Button className="w-full" onClick={() => void run(() => signInWithGoogle())} disabled={busy}>
-        Continue with Google
-      </Button>
       {msg && <p className={`mt-4 rounded-lg p-3 text-sm ${msg.tone === 'good' ? 'bg-good/10 text-good' : 'bg-bad/10 text-bad'}`}>{msg.text}</p>}
       <p className="mt-6 text-xs text-muted">
         New accounts start as <b>Viewer</b>; an admin promotes scouts and strategists. Leads with the admin passcode can make themselves Admin under <b>Admin</b>. Installed on your home screen? Use e-mail + password (email links open in

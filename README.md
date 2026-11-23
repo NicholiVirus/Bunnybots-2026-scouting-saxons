@@ -39,7 +39,6 @@ Fork this repository on GitHub (or push it to your team's org).
 Supabase → **Authentication**:
 1. **Sign In / Providers → Email**: on. For an event, turning **Confirm email** off makes sign-up instant.
 2. **URL Configuration**: set **Site URL** to your future Vercel URL (e.g. `https://saxon-scout.vercel.app`) and add **Redirect URL** `https://saxon-scout.vercel.app/auth/callback/`. (Come back and fix this after step 2.5 if the URL changes.)
-3. *(Optional)* **Google** provider: follow Supabase's Google guide, paste the Client ID/Secret.
 
 ### 2.4 Copy your keys (1 min)
 Supabase → **Project Settings → API**: copy the **Project URL** and the **anon public** key. (The anon key is safe in a browser; RLS decides what each role can do.)

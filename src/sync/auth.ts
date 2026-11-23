@@ -144,13 +144,6 @@ export async function signInWithMagicLink(email: string) {
   if (error) throw error;
 }
 
-export async function signInWithGoogle() {
-  const sb = getSupabase();
-  if (!sb) throw new Error('Supabase is not configured');
-  const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: redirectTo() } });
-  if (error) throw error;
-}
-
 export async function signOut() {
   const sb = getSupabase();
   if (sb) await sb.auth.signOut();
