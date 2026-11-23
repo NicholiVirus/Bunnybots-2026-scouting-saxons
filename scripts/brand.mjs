@@ -18,7 +18,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 execFileSync(process.execPath, [path.join(root, 'scripts', 'brand-manifest.mjs')], { stdio: 'inherit' });
 const brand = JSON.parse(readFileSync(path.join(root, 'src', 'generated', 'brand.json'), 'utf8'));
 
-const BG = '#0b3c32';
+const BG = '#06261f';
 const icons = path.join(root, 'public', 'icons');
 const splashDir = path.join(icons, 'splash');
 mkdirSync(splashDir, { recursive: true });

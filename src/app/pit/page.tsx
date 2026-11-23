@@ -16,6 +16,10 @@ import { isOurTeam } from '@/config/event';
 import { Badge, Button, Card, Empty, Field, PageTitle, cx, haptic, inputCls } from '@/components/ui';
 import { PhotoManager } from '@/components/PhotoManager';
 import { usePhotoMap, TeamAvatar } from '@/components/TeamChip';
+import { FieldMap } from '@/components/FieldMap';
+import { ALLIANCE_CARROTS_PER_LEVEL } from '@/components/scout/Live';
+import { useAnalytics } from '@/analytics/AnalyticsProvider';
+import { Minus, Plus } from 'lucide-react';
 
 export default function PitPage() {
   return (
@@ -119,12 +123,56 @@ function Multi<T extends string>({ value, options, onChange }: { value?: T[]; op
   );
 }
 
+const TARGET_LABEL: Record<Target, string> = { L1: 'L1', L2: 'L2', L3: 'L3', oven: 'Oven' };
+type AutoScoring = NonNullable<PitData['autoScoring']>;
+
+/** Tap counters: how many carrots / cakes the robot scores in auto at each target. */
+function AutoScoringGrid({ value, onChange }: { value?: AutoScoring; onChange: (v: AutoScoring) => void }) {
+  const v: AutoScoring = value ?? { carrot: {}, cake: {} };
+  const bump = (piece: 'carrot' | 'cake', t: Target, d: number) => {
+    const n = Math.max(0, (v[piece][t] ?? 0) + d);
+    onChange({ ...v, [piece]: { ...v[piece], [t]: n } });
+    haptic(8);
+  };
+  const cell = (piece: 'carrot' | 'cake', t: Target) => {
+    const n = v[piece][t] ?? 0;
+    return (
+      <div className="flex items-center justify-between gap-1 rounded-xl border border-line bg-surface-2 p-1">
+        <button type="button" aria-label={`Remove ${piece} at ${TARGET_LABEL[t]}`} className="tap rounded-lg text-muted disabled:opacity-30" disabled={n === 0} onClick={() => bump(piece, t, -1)} data-testid={`auto-${piece}-${t}-minus`}>
+          <Minus className="mx-auto" size={18} />
+        </button>
+        <span className={cx('min-w-6 text-center text-xl font-bold tnum', n > 0 ? 'text-fg' : 'text-muted')} data-testid={`auto-${piece}-${t}-count`}>
+          {n}
+        </span>
+        <button type="button" aria-label={`Add ${piece} at ${TARGET_LABEL[t]}`} className="tap rounded-lg bg-saxon text-saxon-ink disabled:opacity-30" disabled={piece === 'carrot' && t !== 'oven' && n >= ALLIANCE_CARROTS_PER_LEVEL} onClick={() => bump(piece, t, 1)} data-testid={`auto-${piece}-${t}-plus`}>
+          <Plus className="mx-auto" size={18} />
+        </button>
+      </div>
+    );
+  };
+  return (
+    <div className="grid grid-cols-[3.5rem_1fr_1fr] items-center gap-2">
+      <span />
+      <span className="text-center text-xs font-semibold uppercase tracking-wide text-muted">Carrots</span>
+      <span className="text-center text-xs font-semibold uppercase tracking-wide text-muted">Cakes</span>
+      {(['L3', 'L2', 'L1', 'oven'] as const).map((t) => (
+        <div key={t} className="contents">
+          <span className="font-semibold">{TARGET_LABEL[t]}</span>
+          {cell('carrot', t)}
+          {cell('cake', t)}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function PitForm({ team }: { team: string }) {
   const router = useRouter();
   const me = whoAmI();
   const all = useLiveQuery(() => db.pit_reports.where('team_id').equals(team).toArray(), [team], []);
   const mine = useMemo(() => all.find((r) => (me.id ? r.author_id === me.id : r.author_name === me.name)), [all, me.id, me.name]);
   const merged = useMemo(() => mergePit(all), [all]);
+  const maxHaulSeen = useAnalytics()?.teams.get(team)?.maxHaulObserved ?? null;
   const [d, setD] = useState<PitData>({});
   const [loaded, setLoaded] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -181,17 +229,11 @@ function PitForm({ team }: { team: string }) {
           <Field label="Pantry levels reachable">
             <Multi<Shelf> value={d.levels} options={{ L1: 'L1', L2: 'L2', L3: 'L3' }} onChange={(v) => set({ levels: v })} />
           </Field>
-          <Field label="Handles">
-            <Choice value={d.handles} options={PIT_LABELS.handles} onChange={(v) => set({ handles: v })} />
-          </Field>
           <Field label="Oven capable">
             <Choice value={d.oven} options={PIT_LABELS.oven} onChange={(v) => set({ oven: v })} />
           </Field>
           <Field label="Role">
             <Choice value={d.role} options={Object.fromEntries(ROLES.map((r) => [r, ROLE_LABEL[r]])) as Record<(typeof ROLES)[number], string>} onChange={(v) => set({ role: v })} />
-          </Field>
-          <Field label="Handoff capable (e.g. oven-only robot passes a cake to a Pantry robot)">
-            <YesNo value={d.handoff} onChange={(v) => set({ handoff: v })} />
           </Field>
         </div>
       </Card>
@@ -208,9 +250,6 @@ function PitForm({ team }: { team: string }) {
               <Choice value={d.groundIntakeReliability} options={PIT_LABELS.reliability} onChange={(v) => set({ groundIntakeReliability: v })} />
             </Field>
           )}
-          <Field label="Intake sources">
-            <Multi value={d.intakeSources} options={PIT_LABELS.intake} onChange={(v) => set({ intakeSources: v })} />
-          </Field>
         </div>
       </Card>
       <Card title="Auto & endgame">
@@ -225,19 +264,24 @@ function PitForm({ team }: { team: string }) {
             <Field label="Auto: picks up prestaged carrots?">
               <YesNo value={d.autoPicksPrestaged} onChange={(v) => set({ autoPicksPrestaged: v })} />
             </Field>
-            <Field label="Can park?">
-              <YesNo value={d.canPark} onChange={(v) => set({ canPark: v })} />
-            </Field>
           </div>
-          <Field label="Auto: where does it score?">
-            <Multi<Target> value={d.autoTargets} options={{ L1: 'L1', L2: 'L2', L3: 'L3', oven: 'Oven' }} onChange={(v) => set({ autoTargets: v })} />
-          </Field>
+          {/* not <Field>: it is a <label>, which would forward taps to the first button inside */}
+          <div>
+            <span className="mb-1 block text-sm font-medium">Auto: what does it score? (tap + for each piece)</span>
+            <AutoScoringGrid value={d.autoScoring} onChange={(v) => set({ autoScoring: v })} />
+          </div>
+          <div>
+            <span className="mb-1 block text-sm font-medium">Auto: where does it end? (tap the field)</span>
+            <FieldMap value={d.autoEnd} onChange={(p) => set({ autoEnd: p })} />
+          </div>
           <Field label="Auto description">
             <input className={inputCls} value={d.autoDescription ?? ''} onChange={(e) => set({ autoDescription: e.target.value })} />
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={`Max haul (0–${G.haul.maxPiecesPerRobot})`}>
-              <Choice<'0' | '1' | '2' | '3'> value={d.maxHaul !== undefined ? (String(d.maxHaul) as '0') : undefined} options={{ '0': '0', '1': '1', '2': '2', '3': '3' }} onChange={(v) => set({ maxHaul: v === undefined ? undefined : Number(v) })} />
+            <Field label="Max haul (from match reports)">
+              <p className="flex h-12 items-center text-sm" data-testid="max-haul">
+                {maxHaulSeen === null ? <span className="text-muted">No match reports yet</span> : <span className="text-xl font-bold tnum">{maxHaulSeen}</span>}
+              </p>
             </Field>
             <Field label="Carries cakes in the haul?">
               <YesNo value={d.haulsCakes} onChange={(v) => set({ haulsCakes: v })} />

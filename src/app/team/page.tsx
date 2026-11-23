@@ -6,6 +6,7 @@ import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Too
 import { GitCompare, Wrench } from 'lucide-react';
 import { useAnalytics } from '@/analytics/AnalyticsProvider';
 import type { TeamStats } from '@/analytics/model';
+import type { PitData } from '@/data/types';
 import { DEFENSE_LABEL, FLAG_LABEL, MECHANISM_LABEL, ROLE_LABEL, type Mechanism, type ProblemFlag } from '@/game/harvestHavoc.config';
 import { PIT_LABELS } from '@/catalog/pit';
 import { isOurTeam } from '@/config/event';
@@ -13,6 +14,7 @@ import { displayTeam } from '@/lib/teamIds';
 import { useAuth, can } from '@/sync/auth';
 import { Badge, Button, Card, Empty, PageTitle, Stat, cx, fmt, pct } from '@/components/ui';
 import { PhotoManager } from '@/components/PhotoManager';
+import { FieldMap } from '@/components/FieldMap';
 import { TeamTags } from '@/components/TeamTags';
 
 export default function TeamPage() {
@@ -230,21 +232,17 @@ function Architecture({ t }: { t: TeamStats }) {
           <tbody>
             {row('Scoring mechanism', p.mechanism && PIT_LABELS.mechanism[p.mechanism])}
             {row('Pantry levels', p.levels?.join(', '))}
-            {row('Handles', p.handles && PIT_LABELS.handles[p.handles])}
             {row('Oven capable', p.oven && PIT_LABELS.oven[p.oven])}
             {row('Drivetrain', p.drivetrain && PIT_LABELS.drivetrain[p.drivetrain])}
             {row('Ground intake', yn(p.groundIntake))}
             {row('Ground intake reliability', t.groundIntakeReliability && `${PIT_LABELS.reliability[t.groundIntakeReliability]}${t.mechanisms.ground_intake ? ' (from match reports)' : ''}`)}
-            {row('Intake sources', p.intakeSources?.map((s) => PIT_LABELS.intake[s]).join(', '))}
-            {row('Can park', yn(p.canPark))}
-            {row('Max haul', p.maxHaul)}
+            {row('Max haul (match reports)', t.maxHaulObserved)}
             {row('Hauls cakes', yn(p.haulsCakes))}
             {row('Auto: taxi', yn(p.autoTaxi))}
             {row('Auto: scores both preloads', yn(p.autoScoresBothPreloads))}
-            {row('Auto: where', p.autoTargets?.join(', '))}
+            {row('Auto: scores', autoScoringText(p.autoScoring))}
             {row('Auto: picks up prestaged', yn(p.autoPicksPrestaged))}
             {row('Auto description', p.autoDescription)}
-            {row('Handoff capable', yn(p.handoff))}
             {row('Human player (1–5)', p.humanPlayerQuality)}
             {row('Weight (lb)', p.weightLb)}
             {row('Frame perimeter (in)', p.framePerimeterIn)}
@@ -253,6 +251,12 @@ function Architecture({ t }: { t: TeamStats }) {
             {row('Notes', p.notes)}
           </tbody>
         </table>
+      )}
+      {p.autoEnd && (
+        <div className="mt-3">
+          <p className="mb-1 text-sm text-muted">Auto ends here</p>
+          <FieldMap value={p.autoEnd} />
+        </div>
       )}
     </Card>
   );
@@ -389,4 +393,12 @@ function Notes({ t }: { t: TeamStats }) {
       </ol>
     </Card>
   );
+}
+
+function autoScoringText(a: PitData['autoScoring']): string | undefined {
+  if (!a) return undefined;
+  const parts: string[] = [];
+  for (const piece of ['carrot', 'cake'] as const)
+    for (const [t, n] of Object.entries(a[piece] ?? {})) if (n) parts.push(`${n} ${piece}${n > 1 ? 's' : ''} ${t === 'oven' ? 'Oven' : t}`);
+  return parts.length ? parts.join(', ') : 'Nothing';
 }

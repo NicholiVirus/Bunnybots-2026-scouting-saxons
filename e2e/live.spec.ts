@@ -51,6 +51,8 @@ test('live mode: pulls from the results API and picks up a new result within 30 
     });
     const page = await ctx.newPage();
     await page.goto('/admin/');
+    await page.getByTestId('admin-passcode').fill('SSTI');
+    await page.getByRole('button', { name: 'Unlock' }).click();
     await page.getByPlaceholder('https://…').fill(`http://localhost:${port}`);
     await page.getByRole('button', { name: 'Save', exact: true }).click();
     // fastest allowed poll for the test

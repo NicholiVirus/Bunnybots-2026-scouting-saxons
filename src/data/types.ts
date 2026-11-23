@@ -178,21 +178,31 @@ export interface RobotReport extends Synced {
 export interface PitData {
   mechanism?: 'elevator' | 'arm' | 'elevator_arm' | 'other';
   levels?: Shelf[];
+  /** @deprecated no longer asked in pit scouting; kept so older reports still load */
   handles?: 'carrots' | 'cakes' | 'both';
   oven?: 'yes' | 'no' | 'unverified';
   drivetrain?: 'swerve' | 'tank' | 'mecanum' | 'other';
   groundIntake?: boolean;
   groundIntakeReliability?: 'reliable' | 'inconsistent' | 'unreliable';
+  /** @deprecated no longer asked in pit scouting */
   intakeSources?: ('kitchen' | 'neutral' | 'source')[];
+  /** @deprecated no longer asked in pit scouting */
   canPark?: boolean;
+  /** @deprecated max haul now comes from match reports (TeamStats.maxHaulObserved) */
   maxHaul?: number;
   haulsCakes?: boolean;
   autoTaxi?: boolean;
   autoScoresBothPreloads?: boolean;
+  /** @deprecated replaced by autoScoring */
   autoTargets?: Target[];
+  /** Pieces the robot scores in auto, per target (L1–L3 Pantry shelves + Oven). */
+  autoScoring?: { carrot: Partial<Record<Target, number>>; cake: Partial<Record<Target, number>> };
+  /** Where auto ends, as fractions of the field drawing (0–1), our alliance on the left. */
+  autoEnd?: { x: number; y: number };
   autoPicksPrestaged?: boolean;
   autoDescription?: string;
   role?: RobotRole;
+  /** @deprecated no longer asked in pit scouting */
   handoff?: boolean;
   humanPlayerQuality?: number;
   weightLb?: number;

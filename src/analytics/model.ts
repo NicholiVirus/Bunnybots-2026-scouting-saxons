@@ -94,6 +94,8 @@ export interface TeamStats {
   brokeLastMatch: boolean;
   mechanisms: Partial<Record<Mechanism, MechStat>>;
   groundIntakeReliability: 'reliable' | 'inconsistent' | 'unreliable' | null;
+  /** Most pieces (carrots + cakes) seen held at match end in any scouted match. */
+  maxHaulObserved: number | null;
   notes: { matchKey: string; scout: string; text: string; at: string }[];
   disagreements: number;
 }
@@ -402,6 +404,7 @@ export function buildModel(input: ModelInput): AnalyticsModel {
       brokeLastMatch,
       mechanisms,
       groundIntakeReliability: giRel ?? pit.groundIntakeReliability ?? null,
+      maxHaulObserved: rs.length ? Math.max(...rs.map((r) => r.totals.haul.carrot + r.totals.haul.cake)) : null,
       notes: rs.flatMap((r) => r.notes.map((n) => ({ matchKey: r.matchKey, ...n }))),
       disagreements: rs.filter((r) => r.disagree || r.flagDisagree).length,
     });

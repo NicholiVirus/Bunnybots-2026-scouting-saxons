@@ -12,6 +12,7 @@ import { RawDataAdmin } from '@/components/admin/RawDataAdmin';
 import { ExportsAdmin } from '@/components/admin/ExportsAdmin';
 import { AuditAdmin } from '@/components/admin/AuditAdmin';
 import { BrandingAdmin } from '@/components/admin/BrandingAdmin';
+import { PasscodeGate } from '@/components/admin/PasscodeGate';
 
 type Tab = 'data' | 'manual' | 'rotation' | 'raw' | 'teams' | 'users' | 'settings' | 'branding' | 'exports' | 'audit';
 
@@ -29,6 +30,14 @@ const ALL: { value: Tab; label: string; admin: boolean }[] = [
 ];
 
 export default function AdminPage() {
+  return (
+    <PasscodeGate>
+      <AdminInner />
+    </PasscodeGate>
+  );
+}
+
+function AdminInner() {
   const auth = useAuth();
   const isAdmin = can.admin(auth.role);
   const tabs = ALL.filter((t) => isAdmin || (!t.admin && can.manageRotation(auth.role)));

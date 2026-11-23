@@ -1,5 +1,7 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '@/data/db';
 import { Flag, Minus, Plus, Square, Timer } from 'lucide-react';
 import {
   DEFENSE_LABEL,
@@ -16,6 +18,7 @@ import {
   type Phase,
   type Piece,
   type ProblemFlag,
+  type Shelf,
   type Target,
 } from '@/game/harvestHavoc.config';
 import type { RobotReport, ScoutEvent } from '@/data/types';
@@ -28,6 +31,50 @@ import { Button, cx, haptic } from '@/components/ui';
 import { TeamAvatar, usePhotoMap } from '@/components/TeamChip';
 
 type Session = ReturnType<typeof useScoutSession>;
+
+/** Max carrots one alliance can have on each Pantry level (all 3 robots combined). */
+export const ALLIANCE_CARROTS_PER_LEVEL = 5;
+const SHELVES: readonly Shelf[] = ['L1', 'L2', 'L3'];
+
+/**
+ * Carrots already on each Pantry level for this alliance in this match: this
+ * scout's robots plus robots other scouts are watching (synced or received by
+ * QR). If two scouts watched the same robot, the higher count is used.
+ */
+function useAllianceCarrots(b: ScoutingBundle): Record<Shelf, number> {
+  const { id, match_key, alliance, teams } = b.submission;
+  const subs = useLiveQuery(
+    () => db.scout_submissions.where('[match_key+alliance]').equals([match_key, alliance]).toArray(),
+    [match_key, alliance],
+    [],
+  );
+  const otherIds = subs.filter((x) => x.id !== id && !x.discarded).map((x) => x.id);
+  const otherEvents = useLiveQuery<ScoutEvent[], ScoutEvent[]>(
+    async () => (otherIds.length ? db.scout_events.where('submission_id').anyOf(otherIds).toArray() : []),
+    [otherIds.join(',')],
+    [],
+  );
+  return useMemo(() => {
+    const out: Record<Shelf, number> = { L1: 0, L2: 0, L3: 0 };
+    const mine = new Set(teams);
+    for (const e of b.events) if (e.action === 'score' && e.piece === 'carrot' && SHELVES.includes(e.target as Shelf)) out[e.target as Shelf]++;
+    // others: per (submission, team, level), then max per team so double-scouted robots count once
+    const per = new Map<string, number>();
+    for (const e of otherEvents) {
+      if (mine.has(e.team_id) || e.action !== 'score' || e.piece !== 'carrot' || !SHELVES.includes(e.target as Shelf)) continue;
+      const k = `${e.submission_id}|${e.team_id}|${e.target}`;
+      per.set(k, (per.get(k) ?? 0) + 1);
+    }
+    const best = new Map<string, number>();
+    for (const [k, n] of per) {
+      const [, team, lvl] = k.split('|');
+      const tk = `${team}|${lvl}`;
+      best.set(tk, Math.max(best.get(tk) ?? 0, n));
+    }
+    for (const [tk, n] of best) out[tk.split('|')[1] as Shelf] += n;
+    return out;
+  }, [b.events, otherEvents, teams]);
+}
 
 function useMedia(q: string) {
   const [m, setM] = useState(false);
@@ -47,6 +94,7 @@ export function Live({ s, onEnd }: { s: Session; onEnd: () => void }) {
   const [active, setActive] = useState(b.submission.teams[0]);
   const wide = useMedia('(min-width: 768px)');
   const photos = usePhotoMap();
+  const allianceCarrots = useAllianceCarrots(b);
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 200);
@@ -145,6 +193,7 @@ export function Live({ s, onEnd }: { s: Session; onEnd: () => void }) {
               active={wide ? active === team : true}
               onFocus={() => setActive(team)}
               photo={photos.get(team)}
+              allianceCarrots={allianceCarrots}
             />
           ) : null,
         )}
@@ -234,6 +283,7 @@ function RobotPanel({
   active,
   onFocus,
   photo,
+  allianceCarrots,
 }: {
   team: string;
   station: string;
@@ -243,6 +293,7 @@ function RobotPanel({
   active: boolean;
   onFocus: () => void;
   photo?: string;
+  allianceCarrots: Record<Shelf, number>;
 }) {
   const b = s.bundle as ScoutingBundle;
   const evs = b.events.filter((e) => e.team_id === team);
@@ -266,12 +317,14 @@ function RobotPanel({
   const cell = (piece: Piece, target: Target) => {
     const total = count({ action: 'score', piece, target });
     const auto = count({ action: 'score', piece, target, phase: 'auto' });
+    const shelfFull = piece === 'carrot' && target !== 'oven' && allianceCarrots[target] >= ALLIANCE_CARROTS_PER_LEVEL;
     return (
       <Counter
         key={`${piece}-${target}`}
         label={compact ? `${piece === 'cake' ? 'Cake' : 'Carrot'} ${target === 'oven' ? 'Oven' : target}` : target === 'oven' ? (piece === 'cake' ? 'Cake' : 'Carrot') : target}
         count={total}
-        sub={auto ? `${auto} in auto` : undefined}
+        sub={shelfFull ? `alliance ${ALLIANCE_CARROTS_PER_LEVEL}/${ALLIANCE_CARROTS_PER_LEVEL} full` : auto ? `${auto} in auto` : undefined}
+        disabled={shelfFull}
         onPlus={() => tapScore(piece, target)}
         onMinus={() => undoScore(piece, target)}
         tone={piece}

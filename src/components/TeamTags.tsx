@@ -23,7 +23,6 @@ export function TeamTags({ t, max = 8 }: { t: TeamStats; max?: number }) {
   else if (t.pit.groundIntake) tags.push({ label: 'Ground intake' });
   if (t.endgame.reliablyHaulsCakes) tags.push({ label: 'Hauls cakes', tone: 'good' });
   if (t.defense.rate >= 0.3) tags.push({ label: 'Defense', tone: 'warn' });
-  if (t.pit.handoff) tags.push({ label: 'Handoff' });
   if (t.status === 'expected') tags.push({ label: 'expected', tone: 'warn' });
   if (t.trend === 'improving') tags.push({ label: '▲ improving', tone: 'good' });
   if (t.trend === 'declining') tags.push({ label: '▼ declining', tone: 'bad' });

@@ -51,9 +51,20 @@ export async function idbCount(page: Page, store: string, filter?: string): Prom
   );
 }
 
+/** Type the admin passcode if the Admin page is locked. */
+export async function unlockAdmin(page: Page) {
+  const box = page.getByTestId('admin-passcode');
+  if (await box.isVisible().catch(() => false)) {
+    await box.fill('SSTI');
+    await page.getByRole('button', { name: 'Unlock' }).click();
+  }
+}
+
 /** Replay the demo event up to a qual (no playoffs / alliances yet) via Admin → Data sources. */
 export async function setDemoCutoff(page: Page, label: string) {
   await page.goto('/admin/');
+  await page.getByTestId('admin-passcode').or(page.getByRole('button', { name: 'Reload demo' })).first().waitFor();
+  await unlockAdmin(page);
   await waitForDemo(page);
   await page.getByRole('combobox').first().selectOption({ label });
   await page.getByRole('button', { name: 'Reload demo' }).click();

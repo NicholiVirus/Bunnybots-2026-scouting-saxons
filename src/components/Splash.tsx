@@ -109,7 +109,7 @@ export function Splash() {
     <div
       data-testid="splash"
       onClick={finish}
-      className={`fixed inset-0 z-[100] flex cursor-pointer items-center justify-center bg-[#0b3c32] ${leaving ? 'hh-splash-out' : ''}`}
+      className={`fixed inset-0 z-[100] flex cursor-pointer items-center justify-center bg-[#06261f] ${leaving ? 'hh-splash-out' : ''}`}
       aria-label="Loading — tap to skip"
       role="button"
     >

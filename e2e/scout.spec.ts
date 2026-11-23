@@ -92,3 +92,67 @@ test('the installed app opens and scouts with no network (service worker cache)'
   await ctx.setOffline(false);
   await ctx.close();
 });
+
+test('an alliance cannot log more than 5 carrots on one Pantry level', async ({ browser }) => {
+  const ctx = await browser.newContext();
+  await demoDevice(ctx);
+  const page = await ctx.newPage();
+  await page.goto('/scout/');
+  await waitForDemo(page);
+  await page.reload();
+  await page.getByRole('button', { name: /^blue$/i }).click();
+  await page.getByRole('button', { name: 'Select all 3' }).click();
+  const ids = await page.locator('[data-testid^="robot-"]').evaluateAll((els) => els.map((e) => e.getAttribute('data-testid')!.replace('robot-', '')));
+  await page.getByTestId('start').click();
+  const [a, b] = ids;
+  // phones show one robot at a time: switch with the robot tabs
+  const robot = async (t: string) => {
+    if (await page.getByTestId(`tab-${t}`).isVisible()) await page.getByTestId(`tab-${t}`).click();
+  };
+  await robot(a);
+  for (let i = 0; i < 3; i++) await page.getByTestId(`${a}-carrot-L2-plus`).click();
+  await robot(b);
+  for (let i = 0; i < 2; i++) await page.getByTestId(`${b}-carrot-L2-plus`).click();
+  // 5 on L2 across the alliance: every robot's L2 carrot button locks, other levels and cakes stay open
+  for (const t of ids) {
+    await robot(t);
+    await expect(page.getByTestId(`${t}-carrot-L2-plus`)).toBeDisabled();
+    await expect(page.getByTestId(`${t}-carrot-L1-plus`)).toBeEnabled();
+    await expect(page.getByTestId(`${t}-cake-L2-plus`)).toBeEnabled();
+  }
+  // undo frees a slot
+  await robot(b);
+  await page.getByTestId(`${b}-carrot-L2-minus`).click();
+  await robot(ids[2]);
+  await expect(page.getByTestId(`${ids[2]}-carrot-L2-plus`)).toBeEnabled();
+  await ctx.close();
+});
+
+test('pit scouting: auto scoring counters and auto end position', async ({ browser }) => {
+  const ctx = await browser.newContext();
+  await demoDevice(ctx);
+  const page = await ctx.newPage();
+  await page.goto('/pit/?id=526');
+  await waitForDemo(page);
+  await page.reload();
+  await expect(page.getByText('Handoff capable')).toHaveCount(0);
+  await expect(page.getByText('Intake sources')).toHaveCount(0);
+  await expect(page.getByText('Can park?')).toHaveCount(0);
+  await expect(page.getByText('Handles', { exact: true })).toHaveCount(0);
+  await expect(page.getByTestId('max-haul')).toBeVisible();
+  for (let i = 0; i < 2; i++) await page.getByTestId('auto-carrot-L3-plus').click();
+  await page.getByTestId('auto-cake-oven-plus').click();
+  await expect(page.getByTestId('auto-carrot-L3-count')).toHaveText('2');
+  for (let i = 0; i < 6; i++) if (await page.getByTestId('auto-carrot-L1-plus').isEnabled()) await page.getByTestId('auto-carrot-L1-plus').click();
+  await expect(page.getByTestId('auto-carrot-L1-count')).toHaveText('5');
+  const map = page.getByTestId('field-map');
+  const box = (await map.boundingBox())!;
+  await map.click({ position: { x: box.width * 0.3, y: box.height * 0.5 } });
+  await expect(page.getByTestId('field-map-marker')).toBeVisible();
+  await page.getByRole('button', { name: 'Save pit report' }).click();
+  await expect(page.getByRole('button', { name: 'Saved ✓' })).toBeVisible();
+  await page.goto('/team/?id=526');
+  await expect(page.getByText(/2 carrots L3/)).toBeVisible();
+  await expect(page.getByTestId('field-map-marker')).toBeVisible();
+  await ctx.close();
+});

@@ -7,7 +7,7 @@
    SAXON COLOR: change --saxon (and --saxon-ink for text on it) to rebrand. */
 :root {
   --saxon: #d4a53a; /* helmet gold from the Saxon logo */
-  --saxon-ink: #0b3c32; /* logo green — text on gold */
+  --saxon-ink: #06261f; /* deep green — text on gold */
   --red-alliance: #e5484d;
   --blue-alliance: #3e7bfa;
   --bg: #f4f6f3;
@@ -21,11 +21,11 @@
   --bad: #dc2626;
 }
 .dark {
-  /* logo green family */
-  --bg: #0b3c32;
-  --surface: #0f4a3e;
-  --surface-2: #155849;
-  --border: #22685a;
+  /* logo green family, deepened */
+  --bg: #06261f;
+  --surface: #0a3329;
+  --surface-2: #0f3f33;
+  --border: #1a5143;
   --text: #eef4f0;
   --muted: #a3bcb2;
   --good: #4ade80;

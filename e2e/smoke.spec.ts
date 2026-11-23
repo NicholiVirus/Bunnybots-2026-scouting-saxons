@@ -36,3 +36,22 @@ test('every screen renders in demo mode without errors', async ({ browser }) => 
   expect(errors).toEqual([]);
   await ctx.close();
 });
+
+test('admin is locked behind the team passcode', async ({ browser }) => {
+  const ctx = await browser.newContext();
+  await demoDevice(ctx);
+  const page = await ctx.newPage();
+  await page.goto('/admin/');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(/Admin locked/);
+  await expect(page.getByRole('button', { name: 'Reload demo' })).toHaveCount(0);
+  await page.getByTestId('admin-passcode').fill('nope');
+  await page.getByRole('button', { name: 'Unlock' }).click();
+  await expect(page.getByText(/Wrong passcode/)).toBeVisible();
+  await page.getByTestId('admin-passcode').fill('ssti');
+  await page.getByRole('button', { name: 'Unlock' }).click();
+  await expect(page.getByRole('button', { name: 'Reload demo' })).toBeVisible();
+  // stays unlocked for the rest of the session
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Reload demo' })).toBeVisible();
+  await ctx.close();
+});
