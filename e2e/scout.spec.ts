@@ -140,6 +140,11 @@ test('pit scouting: auto scoring counters and auto end position', async ({ brows
   await expect(page.getByText('Can park?')).toHaveCount(0);
   await expect(page.getByText('Handles', { exact: true })).toHaveCount(0);
   await expect(page.getByTestId('max-haul')).toBeVisible();
+  // tapping a question's label text must not pick its first option (a <label> would forward the tap)
+  const mech = page.getByRole('group', { name: 'Scoring mechanism' });
+  await expect(mech.locator('button[aria-pressed="true"]')).toHaveCount(0);
+  await page.getByText('Scoring mechanism', { exact: true }).click();
+  await expect(mech.locator('button[aria-pressed="true"]')).toHaveCount(0);
   for (let i = 0; i < 2; i++) await page.getByTestId('auto-carrot-L3-plus').click();
   await page.getByTestId('auto-cake-oven-plus').click();
   await expect(page.getByTestId('auto-carrot-L3-count')).toHaveText('2');

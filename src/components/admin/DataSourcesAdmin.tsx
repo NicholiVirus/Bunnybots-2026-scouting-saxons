@@ -74,7 +74,7 @@ function LiveFeed() {
               onBlur={() => void saveSetting('pollIntervalSec', Math.max(10, Number(poll) || 30))}
             />
           </Field>
-          <Field label="Results mode">
+          <Field as="group" label="Results mode">
             <Segmented
               value={s.dataMode}
               onChange={(v) => void saveSetting('dataMode', v)}

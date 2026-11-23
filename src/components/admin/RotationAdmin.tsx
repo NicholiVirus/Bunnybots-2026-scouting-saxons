@@ -113,7 +113,7 @@ export function RotationAdmin() {
           Pre-fills each scout&apos;s alliance + robots on the Scout screen (they can still change it). Crews rotate every few matches so people get breaks.
         </p>
         <div className="space-y-3">
-          <Field label="Scouts with accounts">
+          <Field as="group" label="Scouts with accounts">
             <div className="flex flex-wrap gap-1">
               {scoutsFromProfiles.map((p) => (
                 <button
@@ -130,7 +130,7 @@ export function RotationAdmin() {
           <Field label="Other scouts (one name per line)">
             <textarea className="h-20 w-full rounded-xl border border-line bg-surface-2 p-2" value={names} onChange={(e) => setNames(e.target.value)} />
           </Field>
-          <Field label="Coverage pattern per match">
+          <Field as="group" label="Coverage pattern per match">
             <Segmented
               value={pattern}
               onChange={setPattern}

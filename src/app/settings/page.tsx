@@ -67,7 +67,7 @@ export default function SettingsPage() {
         </div>
         {auth.status === 'local' && (
           <div className="mt-4">
-            <Field label="Local role (preview the app as…)">
+            <Field as="group" label="Local role (preview the app as…)">
               <Segmented
                 value={prefs.localRole}
                 onChange={(v) => {

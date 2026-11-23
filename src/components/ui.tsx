@@ -1,6 +1,6 @@
 'use client';
 /** Small UI kit (Tailwind). Mobile-first: ≥48 px tap targets, big numbers. */
-import { useEffect, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { useEffect, useId, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 
 export function cx(...c: (string | false | null | undefined)[]) {
@@ -144,13 +144,47 @@ export function Toggle({ checked, onChange, label, disabled }: { checked: boolea
   );
 }
 
-export function Field({ label, children, hint, error }: { label: ReactNode; children: ReactNode; hint?: ReactNode; error?: ReactNode }) {
+/**
+ * Labelled form row. Default renders a `<label>` so tapping the text focuses the input.
+ * Use `as="group"` when the child is a set of buttons: a `<label>` forwards any tap on
+ * it (text or gaps) to the FIRST button inside, which would silently pick an option.
+ */
+export function Field({
+  label,
+  children,
+  hint,
+  error,
+  as = 'label',
+}: {
+  label: ReactNode;
+  children: ReactNode;
+  hint?: ReactNode;
+  error?: ReactNode;
+  as?: 'label' | 'group';
+}) {
+  const id = useId();
+  const extra = (
+    <>
+      {hint && !error && <span className="mt-1 block text-xs text-muted">{hint}</span>}
+      {error && <span className="mt-1 block text-xs text-bad">{error}</span>}
+    </>
+  );
+  if (as === 'group') {
+    return (
+      <div className="block" role="group" aria-labelledby={`${id}-label`}>
+        <span id={`${id}-label`} className="mb-1 block text-sm font-medium">
+          {label}
+        </span>
+        {children}
+        {extra}
+      </div>
+    );
+  }
   return (
     <label className="block">
       <span className="mb-1 block text-sm font-medium">{label}</span>
       {children}
-      {hint && !error && <span className="mt-1 block text-xs text-muted">{hint}</span>}
-      {error && <span className="mt-1 block text-xs text-bad">{error}</span>}
+      {extra}
     </label>
   );
 }

@@ -78,6 +78,7 @@ function YesNo({ value, onChange }: { value?: boolean; onChange: (v: boolean | u
         <button
           key={String(v)}
           type="button"
+          aria-pressed={value === v}
           onClick={() => onChange(value === v ? undefined : (v as boolean))}
           className={cx('tap rounded-xl border px-4', value === v ? 'border-saxon bg-saxon font-semibold text-saxon-ink' : 'border-line bg-surface-2 text-muted')}
         >
@@ -95,6 +96,7 @@ function Choice<T extends string>({ value, options, onChange }: { value?: T; opt
         <button
           key={k}
           type="button"
+          aria-pressed={value === k}
           onClick={() => onChange(value === k ? undefined : k)}
           className={cx('tap rounded-xl border px-3 text-sm', value === k ? 'border-saxon bg-saxon font-semibold text-saxon-ink' : 'border-line bg-surface-2 text-muted')}
         >
@@ -113,6 +115,7 @@ function Multi<T extends string>({ value, options, onChange }: { value?: T[]; op
         <button
           key={k}
           type="button"
+          aria-pressed={v.includes(k)}
           onClick={() => onChange(v.includes(k) ? v.filter((x) => x !== k) : [...v, k])}
           className={cx('tap rounded-xl border px-3 text-sm', v.includes(k) ? 'border-saxon bg-saxon font-semibold text-saxon-ink' : 'border-line bg-surface-2 text-muted')}
         >
@@ -223,30 +226,30 @@ function PitForm({ team }: { team: string }) {
       </Card>
       <Card title="Scoring">
         <div className="space-y-4">
-          <Field label="Scoring mechanism">
+          <Field as="group" label="Scoring mechanism">
             <Choice value={d.mechanism} options={PIT_LABELS.mechanism} onChange={(v) => set({ mechanism: v })} />
           </Field>
-          <Field label="Pantry levels reachable">
+          <Field as="group" label="Pantry levels reachable">
             <Multi<Shelf> value={d.levels} options={{ L1: 'L1', L2: 'L2', L3: 'L3' }} onChange={(v) => set({ levels: v })} />
           </Field>
-          <Field label="Oven capable">
+          <Field as="group" label="Oven capable">
             <Choice value={d.oven} options={PIT_LABELS.oven} onChange={(v) => set({ oven: v })} />
           </Field>
-          <Field label="Role">
+          <Field as="group" label="Role">
             <Choice value={d.role} options={Object.fromEntries(ROLES.map((r) => [r, ROLE_LABEL[r]])) as Record<(typeof ROLES)[number], string>} onChange={(v) => set({ role: v })} />
           </Field>
         </div>
       </Card>
       <Card title="Drive & intake">
         <div className="space-y-4">
-          <Field label="Drivetrain">
+          <Field as="group" label="Drivetrain">
             <Choice value={d.drivetrain} options={PIT_LABELS.drivetrain} onChange={(v) => set({ drivetrain: v })} />
           </Field>
-          <Field label="Ground intake">
+          <Field as="group" label="Ground intake">
             <YesNo value={d.groundIntake} onChange={(v) => set({ groundIntake: v })} />
           </Field>
           {d.groundIntake && (
-            <Field label="Ground intake reliability (auto-updates from match reports)">
+            <Field as="group" label="Ground intake reliability (auto-updates from match reports)">
               <Choice value={d.groundIntakeReliability} options={PIT_LABELS.reliability} onChange={(v) => set({ groundIntakeReliability: v })} />
             </Field>
           )}
@@ -255,25 +258,22 @@ function PitForm({ team }: { team: string }) {
       <Card title="Auto & endgame">
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Auto: taxi?">
+            <Field as="group" label="Auto: taxi?">
               <YesNo value={d.autoTaxi} onChange={(v) => set({ autoTaxi: v })} />
             </Field>
-            <Field label="Auto: scores both preloads?">
+            <Field as="group" label="Auto: scores both preloads?">
               <YesNo value={d.autoScoresBothPreloads} onChange={(v) => set({ autoScoresBothPreloads: v })} />
             </Field>
-            <Field label="Auto: picks up prestaged carrots?">
+            <Field as="group" label="Auto: picks up prestaged carrots?">
               <YesNo value={d.autoPicksPrestaged} onChange={(v) => set({ autoPicksPrestaged: v })} />
             </Field>
           </div>
-          {/* not <Field>: it is a <label>, which would forward taps to the first button inside */}
-          <div>
-            <span className="mb-1 block text-sm font-medium">Auto: what does it score? (tap + for each piece)</span>
+          <Field as="group" label="Auto: what does it score? (tap + for each piece)">
             <AutoScoringGrid value={d.autoScoring} onChange={(v) => set({ autoScoring: v })} />
-          </div>
-          <div>
-            <span className="mb-1 block text-sm font-medium">Auto: where does it end? (tap the field)</span>
+          </Field>
+          <Field as="group" label="Auto: where does it end? (tap the field)">
             <FieldMap value={d.autoEnd} onChange={(p) => set({ autoEnd: p })} />
-          </div>
+          </Field>
           <Field label="Auto description">
             <input className={inputCls} value={d.autoDescription ?? ''} onChange={(e) => set({ autoDescription: e.target.value })} />
           </Field>
@@ -283,7 +283,7 @@ function PitForm({ team }: { team: string }) {
                 {maxHaulSeen === null ? <span className="text-muted">No match reports yet</span> : <span className="text-xl font-bold tnum">{maxHaulSeen}</span>}
               </p>
             </Field>
-            <Field label="Carries cakes in the haul?">
+            <Field as="group" label="Carries cakes in the haul?">
               <YesNo value={d.haulsCakes} onChange={(v) => set({ haulsCakes: v })} />
             </Field>
           </div>
@@ -302,7 +302,7 @@ function PitForm({ team }: { team: string }) {
           </Field>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <Field label="Human player quality (Ramp/Depot speed, cake throws)">
+          <Field as="group" label="Human player quality (Ramp/Depot speed, cake throws)">
             <Choice<'1' | '2' | '3' | '4' | '5'>
               value={d.humanPlayerQuality !== undefined ? (String(d.humanPlayerQuality) as '1') : undefined}
               options={{ '1': '1', '2': '2', '3': '3', '4': '4', '5': '5' }}
