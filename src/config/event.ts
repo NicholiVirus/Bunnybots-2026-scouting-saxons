@@ -28,7 +28,8 @@ export const EVENT = {
   ],
   timezone: 'America/New_York',
   /** Default for The Bunnybots Alliance base URL; Admins override it in-app. */
-  defaultTbaUrl: process.env.NEXT_PUBLIC_TBA_CLONE_URL ?? '',
+  /** 449's The Bunnybots Alliance (Shiny app); override with NEXT_PUBLIC_TBA_CLONE_URL or Admin → Data sources. */
+  defaultTbaUrl: process.env.NEXT_PUBLIC_TBA_CLONE_URL || 'https://blair-robot-449.shinyapps.io/the_bunnybots_alliance',
 } as const;
 
 export type TeamStatus = 'confirmed' | 'expected' | 'withdrawn';

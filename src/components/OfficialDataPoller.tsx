@@ -11,6 +11,9 @@ import { BunnybotsAllianceSource } from '@/sources/bunnybotsAlliance';
 import { applyOfficialData, markOfficialSuccess, officialStore, restoreOfficialState, refreshComputedRankings } from '@/sources/apply';
 import { ensureDemoLoaded } from '@/sources/demo';
 import { useAuth } from '@/sync/auth';
+import { db } from '@/data/db';
+import { ROSTER } from '@/config/event';
+import { checkFeedAgainstRoster, rosterGuardMessage } from '@/sources/rosterGuard';
 
 export async function pollOfficialNow(base: string) {
   if (!base) return;
@@ -18,6 +21,13 @@ export async function pollOfficialNow(base: string) {
   try {
     const ctx = await loadTeamIdContext();
     const data = await new BunnybotsAllianceSource(base, ctx).fetch();
+    // never let placeholder / another event's data overwrite ours
+    const teams = await db.teams.toArray();
+    const check = checkFeedAgainstRoster(data, teams.length ? teams.map((t) => t.id) : ROSTER.map((t) => t.id));
+    if (!check.ok) {
+      officialStore.set({ lastError: rosterGuardMessage(check) });
+      return;
+    }
     await applyOfficialData(data);
     if (!data.rankings.length) await refreshComputedRankings('api');
     await markOfficialSuccess('api', data.warnings);

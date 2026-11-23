@@ -1,4 +1,5 @@
 'use client';
+import { EVENT } from '@/config/event';
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { CheckCircle2, Link2, RefreshCw, Upload } from 'lucide-react';
@@ -48,7 +49,7 @@ function LiveFeed() {
   return (
     <Card title="The Bunnybots Alliance (live results)" actions={<FreshnessBanner />}>
       <div className="space-y-3">
-        <Field label="Base URL (449's results site)" hint="e.g. https://bunnybots.example.org — paste it once 449 publishes it. No key needed.">
+        <Field label="Base URL (449's results site)" hint={`449's site: ${EVENT.defaultTbaUrl || 'https://blair-robot-449.shinyapps.io/the_bunnybots_alliance'} · no key needed. The free server can take ~30 s to wake up.`}>
           <div className="flex gap-2">
             <input className={inputCls} value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…" inputMode="url" />
             <Button
@@ -94,6 +95,7 @@ function LiveFeed() {
           </Button>
         </div>
         {test && <p className="rounded-lg bg-surface-2 p-2 text-sm">{test}</p>}
+        {off.lastError && <p className="rounded-lg bg-warn/10 p-2 text-sm text-warn" data-testid="feed-error">{off.lastError}</p>}
         {off.warnings.length > 0 && (
           <details className="text-sm">
             <summary className="cursor-pointer text-warn">{off.warnings.length} data warnings (scores that don’t match our rules)</summary>

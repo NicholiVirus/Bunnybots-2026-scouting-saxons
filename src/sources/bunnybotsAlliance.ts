@@ -11,7 +11,8 @@ import { hashString, nowIso, stableStringify } from '@/lib/util';
 import type { DataSource, OfficialData } from './DataSource';
 import { allianceFromRaw, matchFromRaw, rankingFromRaw, type Raw } from './normalize';
 
-const TIMEOUT_MS = 8000;
+// 449 hosts on shinyapps.io, which sleeps when idle and can take ~20 s to wake
+const TIMEOUT_MS = 25_000;
 
 export function cleanBaseUrl(base: string): string {
   let b = base.trim();

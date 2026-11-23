@@ -51,7 +51,7 @@ Supabase → **Project Settings → API**: copy the **Project URL** and the **an
    |---|---|
    | `NEXT_PUBLIC_SUPABASE_URL` | Project URL from 2.4 |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon key from 2.4 |
-   | `NEXT_PUBLIC_TBA_CLONE_URL` | *(optional)* 449's results site — can also be set later in the app |
+   | `NEXT_PUBLIC_TBA_CLONE_URL` | *(optional)* 449's results site. Defaults to `https://blair-robot-449.shinyapps.io/the_bunnybots_alliance`; can also be changed in Admin → Data sources |
 3. **Deploy**. [`vercel.json`](vercel.json) already sets the build command (`npm run build`) and output folder (`out`).
 
 ### 2.6 First sign-in = admin (2 min)
