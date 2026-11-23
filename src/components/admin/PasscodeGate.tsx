@@ -1,12 +1,15 @@
 'use client';
 /**
- * Second lock on the Admin page: the device must enter the team passcode once
- * per app session. This only hides the screen — the real protection is the
- * account role checked by Supabase Row-Level Security on every write.
+ * Admin page lock. Entering the team passcode (once per app session):
+ *  - opens the Admin screen on this device, and
+ *  - makes the signed-in account an Admin (checked again on the server by
+ *    public.claim_admin, so the role cannot be faked from the browser).
+ * Any number of accounts can become admins this way.
  */
 import { useEffect, useState, type ReactNode } from 'react';
 import { Lock } from 'lucide-react';
 import { Button, Field, PageTitle, inputCls } from '@/components/ui';
+import { claimAdmin, useAuth } from '@/sync/auth';
 
 /** SHA-256 of the passcode (uppercase). Change both together to rotate it. */
 const PASSCODE_SHA256 = 'c750ae35005d3181ddf3f2a6763c1189a934b5884539f46c630e1ca02019c903';
@@ -34,8 +37,11 @@ export function PasscodeGate({ children }: { children: ReactNode }) {
   // eslint-disable-next-line react-hooks/set-state-in-effect -- read sessionStorage after hydration
   useEffect(() => setUnlocked(isUnlocked()), []);
 
+  const auth = useAuth();
   if (unlocked === null) return null;
-  if (unlocked) return <>{children}</>;
+  // open only for an unlocked session AND an admin account (a different
+  // account signing in on this device has to enter the passcode itself)
+  if (unlocked && auth.role === 'admin') return <>{children}</>;
 
   const submit = async () => {
     setBusy(true);
@@ -43,6 +49,12 @@ export function PasscodeGate({ children }: { children: ReactNode }) {
     try {
       const hash = await sha256Hex(code.trim().toUpperCase());
       if (hash === PASSCODE_SHA256) {
+        try {
+          await claimAdmin(code);
+        } catch (e) {
+          setError((e as Error).message);
+          return;
+        }
         try {
           sessionStorage.setItem(ADMIN_UNLOCK_KEY, hash);
         } catch {
@@ -61,7 +73,7 @@ export function PasscodeGate({ children }: { children: ReactNode }) {
 
   return (
     <div className="mx-auto max-w-sm py-8">
-      <PageTitle sub="Enter the team passcode to open admin tools.">
+      <PageTitle sub="Enter the team passcode to open admin tools. It also makes your account an Admin.">
         <span className="inline-flex items-center gap-2">
           <Lock size={22} /> Admin locked
         </span>

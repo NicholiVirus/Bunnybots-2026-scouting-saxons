@@ -57,6 +57,8 @@ Supabase → **Project Settings → API**: copy the **Project URL** and the **an
 ### 2.6 First sign-in = admin (2 min)
 Open the site, **Create account**. **The very first account becomes Admin.** Everyone else starts as **Viewer**; promote them in **Admin → Users & roles** (Scout / Strategist / Admin).
 
+**More admins:** anyone signed in can open **Admin** and enter the admin passcode (default `SSTI`) to become an Admin. The server checks the passcode (`public.claim_admin`), allows 5 wrong tries per 15 minutes per account, and the role change lands in the audit log. To change the passcode, run in SQL Editor: `update private.admin_passcode set sha256 = encode(sha256(convert_to(upper('NEWCODE'), 'UTF8')), 'hex');` and update `PASSCODE_SHA256` in `src/components/admin/PasscodeGate.tsx`.
+
 > Locked out? In Supabase SQL Editor: `update public.profiles set role = 'admin' where email = 'you@example.com';`
 
 ### 2.7 Alternative host: Cloudflare Pages (free, any use)

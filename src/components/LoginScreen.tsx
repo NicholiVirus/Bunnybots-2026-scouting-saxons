@@ -93,7 +93,7 @@ export function LoginScreen() {
       </Button>
       {msg && <p className={`mt-4 rounded-lg p-3 text-sm ${msg.tone === 'good' ? 'bg-good/10 text-good' : 'bg-bad/10 text-bad'}`}>{msg.text}</p>}
       <p className="mt-6 text-xs text-muted">
-        New accounts start as <b>Viewer</b>; an admin promotes scouts and strategists. Installed on your home screen? Use e-mail + password (email links open in
+        New accounts start as <b>Viewer</b>; an admin promotes scouts and strategists. Leads with the admin passcode can make themselves Admin under <b>Admin</b>. Installed on your home screen? Use e-mail + password (email links open in
         the browser, not the installed app).
       </p>
     </div>

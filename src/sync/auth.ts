@@ -9,7 +9,7 @@ import type { Session } from '@supabase/supabase-js';
 import { db } from '@/data/db';
 import type { Profile, Role } from '@/data/types';
 import { createStore } from '@/lib/store';
-import { getPrefs } from '@/lib/prefs';
+import { getPrefs, setPrefs } from '@/lib/prefs';
 import { getSupabase, isSupabaseConfigured } from './supabase';
 
 export interface AuthState {
@@ -90,6 +90,30 @@ export async function refreshProfile() {
   if (!sb) return;
   const { data } = await sb.auth.getSession();
   if (data.session) await loadProfile(data.session);
+}
+
+/**
+ * Become an Admin with the team admin passcode. The server checks the code
+ * (public.claim_admin), so only a correct passcode changes the role. In
+ * local-only / demo mode the device simply switches its local role.
+ * Throws with a readable message on a wrong code, lockout or no connection.
+ */
+export async function claimAdmin(passcode: string): Promise<void> {
+  const st = authStore.get();
+  if (st.role === 'admin') return;
+  if (st.status === 'local') {
+    setPrefs({ localRole: 'admin' });
+    authStore.set({ role: 'admin' });
+    return;
+  }
+  const sb = getSupabase();
+  if (!sb || st.status !== 'signed_in') throw new Error('Sign in first, then enter the passcode.');
+  if (typeof navigator !== 'undefined' && navigator.onLine === false)
+    throw new Error('You need a connection once to become admin. Try again when online.');
+  const { data, error } = await sb.rpc('claim_admin', { p_passcode: passcode });
+  if (error) throw new Error(/fetch|network/i.test(error.message) ? 'No connection. Try again when online.' : error.message);
+  if (data !== 'admin') throw new Error('Wrong passcode. Ask the scouting lead for it.');
+  await refreshProfile();
 }
 
 const redirectTo = () => `${window.location.origin}/auth/callback/`;

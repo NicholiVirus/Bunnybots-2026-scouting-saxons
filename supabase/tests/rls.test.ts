@@ -11,7 +11,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 const root = path.resolve(__dirname, '..');
 const shim = readFileSync(path.join(root, 'tests', 'supabase-shim.sql'), 'utf8');
-const migration = readFileSync(path.join(root, 'migrations', '0001_init.sql'), 'utf8');
+const migration = ['0001_init.sql', '0002_admin_passcode.sql'].map((f) => readFileSync(path.join(root, 'migrations', f), 'utf8')).join('\n');
 const seed = readFileSync(path.join(root, 'seed.sql'), 'utf8');
 
 const U = {
@@ -299,5 +299,45 @@ describe('Admin', () => {
       U.scout,
     ]);
     expect(n).toBeGreaterThan(0);
+  });
+});
+
+describe('Admin by passcode', () => {
+  const claim = async (code: string) => (await rows(`select public.claim_admin($1) as r`, [code]))[0].r;
+  const roleOf = async (id: string) => {
+    await asSuper();
+    return (await rows(`select role from public.profiles where id = $1`, [id]))[0].role;
+  };
+
+  it('the passcode itself is unreadable through the API', async () => {
+    await asUser(U.viewer);
+    await expect(rows(`select * from private.admin_passcode`)).rejects.toThrow(/permission denied/i);
+    await asAnon();
+    await expect(rows(`select public.claim_admin('SSTI')`)).rejects.toThrow(/permission denied/i);
+  });
+
+  it('a wrong passcode changes nothing; the right one (any case) makes a second admin', async () => {
+    const fresh = '00000000-0000-4000-8000-0000000000aa';
+    await asSuper();
+    await db.query(`insert into auth.users (id, email, raw_user_meta_data) values ($1, 'fresh@example.com', '{"full_name":"Fresh"}')`, [fresh]);
+    expect(await roleOf(fresh)).toBe('viewer');
+    await asUser(fresh);
+    expect(await claim('nope')).toBeNull();
+    expect(await roleOf(fresh)).toBe('viewer');
+    await asUser(fresh);
+    expect(await claim(' ssti ')).toBe('admin');
+    expect(await roleOf(fresh)).toBe('admin');
+    // the original admin keeps the role: there are now two
+    expect(await roleOf(U.admin)).toBe('admin');
+    await asSuper();
+    const audit = await rows(`select actor_id from public.audit_log where table_name = 'profiles' and row_key = $1 order by id desc limit 1`, [fresh]);
+    expect(audit[0]?.actor_id).toBe(fresh);
+  });
+
+  it('locks an account out after 5 wrong guesses in 15 minutes', async () => {
+    await asUser(U.scout2);
+    for (let i = 0; i < 5; i++) expect(await claim(`bad${i}`)).toBeNull();
+    await expect(claim('SSTI')).rejects.toThrow(/too many wrong passcodes/);
+    expect(await roleOf(U.scout2)).not.toBe('admin');
   });
 });

@@ -55,3 +55,15 @@ test('admin is locked behind the team passcode', async ({ browser }) => {
   await expect(page.getByRole('button', { name: 'Reload demo' })).toBeVisible();
   await ctx.close();
 });
+
+test('a viewer becomes an admin by entering the passcode', async ({ browser }) => {
+  const ctx = await browser.newContext();
+  await demoDevice(ctx, { localRole: 'viewer' });
+  const page = await ctx.newPage();
+  await page.goto('/admin/');
+  await page.getByTestId('admin-passcode').fill('SSTI');
+  await page.getByRole('button', { name: 'Unlock' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(/^Admin$/);
+  await expect(page.getByRole('button', { name: 'Reload demo' })).toBeVisible();
+  await ctx.close();
+});
