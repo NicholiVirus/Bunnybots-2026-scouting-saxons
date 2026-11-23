@@ -14,7 +14,7 @@ import { Card, Empty, PageTitle, cx, fmt, pct } from '@/components/ui';
 import { TeamChip, usePhotoMap } from '@/components/TeamChip';
 import { TeamTags } from '@/components/TeamTags';
 
-const COLORS = ['var(--saxon)', 'var(--red-alliance)', 'var(--blue-alliance)', '#22c55e'];
+const COLORS = ['var(--saxon)', 'var(--red-alliance)', 'var(--blue-alliance)', '#c084fc'];
 
 export default function ComparePage() {
   return (

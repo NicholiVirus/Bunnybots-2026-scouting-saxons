@@ -109,7 +109,7 @@ export function Splash() {
     <div
       data-testid="splash"
       onClick={finish}
-      className={`fixed inset-0 z-[100] flex cursor-pointer items-center justify-center bg-[#0b0e13] ${leaving ? 'hh-splash-out' : ''}`}
+      className={`fixed inset-0 z-[100] flex cursor-pointer items-center justify-center bg-[#0b3c32] ${leaving ? 'hh-splash-out' : ''}`}
       aria-label="Loading — tap to skip"
       role="button"
     >
@@ -130,7 +130,7 @@ export function Splash() {
         <img src={brand.still ?? '/icons/icon-512.png'} alt="Saxon Robotics" className="h-56 w-56 object-contain" onError={finish} />
       )}
       {src && src.type === 'lottie' && <div ref={lottieRef} className="h-64 w-64 sm:h-80 sm:w-80" />}
-      <span className="absolute bottom-8 text-xs text-[#8d98ab] safe-bottom">Tap to skip</span>
+      <span className="absolute bottom-8 text-xs text-[#a3bcb2] safe-bottom">Tap to skip</span>
     </div>
   );
 }

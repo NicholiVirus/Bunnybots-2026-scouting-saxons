@@ -6,28 +6,29 @@
 /* ── Theme tokens ───────────────────────────────────────────────────────────
    SAXON COLOR: change --saxon (and --saxon-ink for text on it) to rebrand. */
 :root {
-  --saxon: #f2b705;
-  --saxon-ink: #1b1400;
+  --saxon: #d4a53a; /* helmet gold from the Saxon logo */
+  --saxon-ink: #0b3c32; /* logo green — text on gold */
   --red-alliance: #e5484d;
   --blue-alliance: #3e7bfa;
-  --bg: #f6f7f9;
+  --bg: #f4f6f3;
   --surface: #ffffff;
-  --surface-2: #eef0f4;
-  --border: #d9dde5;
-  --text: #11151c;
-  --muted: #5b6475;
+  --surface-2: #e8eee9;
+  --border: #d2ddd6;
+  --text: #0e1f1a;
+  --muted: #55675f;
   --good: #16a34a;
   --warn: #d97706;
   --bad: #dc2626;
 }
 .dark {
-  --bg: #0b0e13;
-  --surface: #131821;
-  --surface-2: #1b2230;
-  --border: #283142;
-  --text: #e8ecf3;
-  --muted: #8d98ab;
-  --good: #22c55e;
+  /* logo green family */
+  --bg: #0b3c32;
+  --surface: #0f4a3e;
+  --surface-2: #155849;
+  --border: #22685a;
+  --text: #eef4f0;
+  --muted: #a3bcb2;
+  --good: #4ade80;
   --warn: #f59e0b;
   --bad: #ef4444;
 }

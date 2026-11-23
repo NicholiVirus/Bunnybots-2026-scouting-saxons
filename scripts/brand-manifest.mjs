@@ -6,7 +6,7 @@
  *
  * If several logo.* files exist, the first match in this order wins:
  *   logo.json (Lottie) → logo.webm → logo.mp4 → logo.gif → logo.png → logo.svg
- * For video/Lottie logos, put a still image next to it (logo-still.png or
+ * For video/Lottie/GIF logos, put a still image next to it (logo-still.png or
  * logo-still.svg) — it is used for the header, PWA icons and reduced-motion.
  */
 import { createHash } from 'node:crypto';
@@ -37,7 +37,8 @@ if (!hit) {
   brand = {
     file: `/brand/${file}`,
     type,
-    still: type === 'lottie' || type === 'video' ? (stillName ? `/brand/${stillName}` : '/icons/icon-512.png') : `/brand/${file}`,
+    // animated logos (Lottie, video, GIF) use logo-still.* for the header, icons and reduced motion
+    still: type === 'lottie' || type === 'video' || type === 'gif' ? (stillName ? `/brand/${stillName}` : '/icons/icon-512.png') : `/brand/${file}`,
     version: createHash('sha1').update(buf).digest('hex').slice(0, 10),
     splash: [],
   };
@@ -70,8 +71,8 @@ if (!existsSync(manifestPath)) {
         start_url: '/',
         scope: '/',
         display: 'standalone',
-        background_color: '#0b0e13',
-        theme_color: '#0b0e13',
+        background_color: '#0b3c32',
+        theme_color: '#0b3c32',
         icons: [{ src: brand.still ?? '/brand/logo.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
       },
       null,
