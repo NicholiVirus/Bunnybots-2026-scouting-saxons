@@ -15,9 +15,10 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
   const reports = useLiveQuery(() => db.robot_reports.toArray(), []);
   const events = useLiveQuery(() => db.scout_events.toArray(), []);
   const pitReports = useLiveQuery(() => db.pit_reports.toArray(), []);
+  const video = useLiveQuery(() => db.video_reports.toArray(), []);
   const settings = useSettings();
   const model = useMemo(() => {
-    if (!teams || !matches || !submissions || !reports || !events || !pitReports) return null;
+    if (!teams || !matches || !submissions || !reports || !events || !pitReports || !video) return null;
     return buildModel({
       teams,
       matches,
@@ -25,9 +26,10 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
       reports,
       events,
       pitReports,
+      video,
       settings: { cycleBurstWindowSec: settings.cycleBurstWindowSec, cycleOutlierCapSec: settings.cycleOutlierCapSec },
     });
-  }, [teams, matches, submissions, reports, events, pitReports, settings.cycleBurstWindowSec, settings.cycleOutlierCapSec]);
+  }, [teams, matches, submissions, reports, events, pitReports, video, settings.cycleBurstWindowSec, settings.cycleOutlierCapSec]);
   return <Ctx.Provider value={model}>{children}</Ctx.Provider>;
 }
 

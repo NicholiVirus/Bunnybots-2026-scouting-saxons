@@ -10,6 +10,8 @@ import { cleanBaseUrl, fetchEndpoint } from '@/sources/bunnybotsAlliance';
 import { applyOfficialData, refreshComputedRankings, markOfficialSuccess, officialStore } from '@/sources/apply';
 import { autoMap, detectKind, importCsv, MATCH_FIELDS, parseCsv } from '@/sources/csv';
 import { getDemoCutoff, loadDemo } from '@/sources/demo';
+import { lineupMismatches, parseVideoFile } from '@/sources/video';
+import { deleteRows, putRows } from '@/data/repo';
 import { pollOfficialNow } from '@/components/OfficialDataPoller';
 import { FreshnessBanner } from '@/components/FreshnessBanner';
 import { Badge, Button, Card, Field, Segmented, Toggle, inputCls } from '@/components/ui';
@@ -23,6 +25,7 @@ export function DataSourcesAdmin() {
       {prefs.demo && <DemoControls />}
       <LiveFeed />
       <CsvImport />
+      <VideoImport />
       <Snapshots />
     </div>
   );
@@ -107,6 +110,90 @@ function LiveFeed() {
           </details>
         )}
       </div>
+    </Card>
+  );
+}
+
+function VideoImport() {
+  const [text, setText] = useState('');
+  const [result, setResult] = useState<string | null>(null);
+  const matches = useLiveQuery(() => db.matches.toArray(), []);
+  const stored = useLiveQuery(() => db.video_reports.count(), []);
+  const parsed = useMemo(() => {
+    if (!text.trim()) return null;
+    try {
+      return parseVideoFile(text);
+    } catch (e) {
+      return { error: (e as Error).message } as const;
+    }
+  }, [text]);
+  const mismatches = useMemo(() => {
+    if (!parsed || 'error' in parsed || !matches) return [];
+    return lineupMismatches(parsed.rows, new Map(matches.map((m) => [m.key, { red: m.red, blue: m.blue }])));
+  }, [parsed, matches]);
+
+  const doImport = async () => {
+    if (!parsed || 'error' in parsed) return;
+    await putRows('video_reports', parsed.rows);
+    setResult(`Imported ${parsed.rows.length} robot-matches from the video scout.`);
+    setText('');
+  };
+  const clearAll = async () => {
+    if (!window.confirm('Remove all video scouting data from every device?')) return;
+    const all = await db.video_reports.toArray();
+    await deleteRows('video_reports', all);
+    setResult(`Removed ${all.length} robot-matches.`);
+  };
+
+  return (
+    <Card title="Video scouting (automatic, from the match video)">
+      <p className="mb-3 text-sm text-muted">
+        Import the file the video PC writes (<code>bunnyscout saxon-export</code> → <code>saxon_video.json</code>), or let the video PC
+        upload directly (<code>bunnyscout saxon-push</code>, signed in as a Strategist or Admin). Video results show next to the
+        scouts&apos; on team and match pages, and count in the stats only for robot-matches no human scouted.
+      </p>
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <label className="tap inline-flex cursor-pointer items-center gap-2 rounded-xl border border-line bg-surface-2 px-4">
+          <Upload size={16} /> Choose file
+          <input
+            type="file"
+            accept=".json,application/json"
+            className="hidden"
+            onChange={async (e) => {
+              const f = e.target.files?.[0];
+              if (f) {
+                setText(await f.text());
+                setResult(null);
+              }
+              e.target.value = '';
+            }}
+          />
+        </label>
+        <span className="text-xs text-muted">{stored ?? 0} robot-matches stored</span>
+        {!!stored && (
+          <Button size="sm" variant="danger" onClick={() => void clearAll()}>
+            Remove all
+          </Button>
+        )}
+      </div>
+      {parsed && 'error' in parsed && <p className="text-sm text-bad">{parsed.error}</p>}
+      {parsed && !('error' in parsed) && (
+        <div className="space-y-2 text-sm">
+          <p>
+            {parsed.rows.length} robot-matches{parsed.event ? ` from “${parsed.event}”` : ''} in{' '}
+            {new Set(parsed.rows.map((r) => r.match_key)).size} matches.
+          </p>
+          {[...parsed.warnings, ...mismatches].map((w) => (
+            <p key={w} className="text-xs text-warn">
+              {w}
+            </p>
+          ))}
+          <Button variant="primary" onClick={() => void doImport()} disabled={!parsed.rows.length}>
+            Import
+          </Button>
+        </div>
+      )}
+      {result && <p className="mt-2 text-sm text-good">{result}</p>}
     </Card>
   );
 }

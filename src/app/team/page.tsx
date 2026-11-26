@@ -333,13 +333,16 @@ function OfficialCard({ t }: { t: TeamStats }) {
 function History({ t }: { t: TeamStats }) {
   if (!t.records.length) return null;
   return (
-    <Card title="Match history (scouted)">
+    <Card title="Match history (scouted + video)">
       <div className="scroll-x">
         <table className="w-full min-w-[560px] text-sm">
           <thead className="text-left text-xs text-muted">
             <tr className="border-b border-line">
               <th className="p-1">Match</th>
               <th className="p-1 text-right">Pts</th>
+              <th className="p-1 text-right" title="Automatic video scout: its points for this robot-match">
+                Video
+              </th>
               <th className="p-1 text-right">Auto</th>
               <th className="p-1 text-right">Cycles</th>
               <th className="p-1">Flags</th>
@@ -357,6 +360,18 @@ function History({ t }: { t: TeamStats }) {
                   <span className={r.alliance === 'red' ? 'text-redA' : 'text-blueA'}>●</span>
                 </td>
                 <td className="p-1 text-right font-semibold tnum">{fmt(r.points.total)}</td>
+                <td className="p-1 text-right tnum">
+                  {r.video ? (
+                    <span title={videoTitle(r.video)}>
+                      {fmt(r.video.points.total)}
+                      {r.video.agrees === false && (
+                        <Badge tone="warn">{`${r.video.diff! > 0 ? '+' : ''}${fmt(r.video.diff!)}`}</Badge>
+                      )}
+                    </span>
+                  ) : (
+                    '—'
+                  )}
+                </td>
                 <td className="p-1 text-right tnum">{fmt(r.points.auto)}</td>
                 <td className="p-1 text-right tnum">{r.cycles ? r.cycles.cycles.length : '—'}</td>
                 <td className="p-1">
@@ -368,7 +383,9 @@ function History({ t }: { t: TeamStats }) {
                   {r.disagree && <Badge tone="warn">scouts disagree</Badge>}
                 </td>
                 <td className="p-1 text-xs">{r.defense.played ? (r.defense.type ? DEFENSE_LABEL[r.defense.type] : 'yes') : ''}</td>
-                <td className="p-1 text-xs text-muted">{r.scouts.map((s) => s.submission.scout_name).join(', ')}</td>
+                <td className="p-1 text-xs text-muted">
+                  {r.source === 'video' ? <Badge tone="neutral">video only</Badge> : r.scouts.map((s) => s.submission.scout_name).join(', ')}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -376,6 +393,17 @@ function History({ t }: { t: TeamStats }) {
       </div>
     </Card>
   );
+}
+
+/** Hover text for a video cell: how sure the video scout was. */
+function videoTitle(v: NonNullable<TeamStats['records'][number]['video']>): string {
+  const c = v.report.confidence ?? {};
+  const parts = [`video scout: ${fmt(v.points.total)} pts`];
+  if (typeof c.id === 'number') parts.push(`team number ${Math.round(c.id * 100)}% sure`);
+  if (c.pantry) parts.push(`PANTRY credit ${c.pantry}`);
+  if (typeof c.tracked_frac === 'number') parts.push(`seen ${Math.round(c.tracked_frac * 100)}% of the match`);
+  if (v.diff !== null) parts.push(`${v.agrees ? 'agrees with' : 'differs from'} the scouts by ${fmt(Math.abs(v.diff))}`);
+  return parts.join(' · ');
 }
 
 function Notes({ t }: { t: TeamStats }) {

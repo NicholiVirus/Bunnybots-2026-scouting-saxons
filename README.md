@@ -110,6 +110,13 @@ Open the site **once while online** (that caches everything), then:
 
 ---
 
+### Video scouting (automatic)
+The [BunnyBotsAutomaticScouting](https://github.com/Alik9151/BunnyBotsAutomaticScouting) system watches each match video (calibrates the cameras from the AprilTags, tracks all six robots, reads bumper numbers, credits PANTRY fills to the robot at the shelf) and sends its results here as **video_reports** — one per robot per match, in the same event vocabulary as a scout's taps.
+- **Setup (once):** run [`supabase/migrations/0004_video_reports.sql`](supabase/migrations/0004_video_reports.sql) in the Supabase SQL Editor (new installs get it from `setup.sql`).
+- **Getting results in:** on the video PC either `bunnyscout saxon-push event.json --url <Project URL> --anon-key <anon key> --email <strategist or admin account>` (password from `SAXON_PASSWORD` or a prompt; row-level security applies, no service key), or `bunnyscout saxon-export event.json` and import `saxon_video.json` in **Admin → Data sources → Video scouting** (works offline; warns about team numbers that are not in the match lineup).
+- **Where it shows:** the match page has a **Video scouting** card (video points next to the scouts', *agrees* / *+N* flags, what it scored by level, taxi/park, how sure it was); team pages have a **Video** column in match history.
+- **Stats:** a robot-match no human scouted is filled from the video and labelled **video only**; where a scout covered the robot, the scout's numbers are used and the video is only shown alongside. OVEN pieces from the video are an estimate (the official OVEN count shared by OVEN visits).
+
 ## 5. Pre-event checklist
 
 - [ ] `supabase/setup.sql` run; first admin signed in; roles assigned

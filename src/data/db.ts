@@ -32,6 +32,7 @@ import type {
   StrategyNote,
   Team,
   TeamAlias,
+  VideoReport,
 } from './types';
 
 export interface AssetRow {
@@ -51,6 +52,7 @@ export class ScoutDB extends Dexie {
   scout_submissions!: Table<ScoutSubmission, string>;
   robot_reports!: Table<RobotReport, string>;
   scout_events!: Table<ScoutEvent, string>;
+  video_reports!: Table<VideoReport, string>;
   pit_reports!: Table<PitReport, string>;
   photos!: Table<PhotoRow, string>;
   picklist_entries!: Table<PicklistEntry, string>;
@@ -100,6 +102,8 @@ export class ScoutDB extends Dexie {
       kv: 'key',
       assets: 'key',
     });
+    // automatic video scouting (BunnyBotsAutomaticScouting), shown next to the human scouting
+    this.version(2).stores({ video_reports: 'id, match_key, team_id' });
   }
 }
 

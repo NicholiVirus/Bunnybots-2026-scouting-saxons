@@ -2,10 +2,15 @@
  * Submissions → one record per (match, team). When 2+ scouts covered the same
  * robot: counts are AVERAGED, cycle timestamps come from the scout who watched
  * the FEWEST robots (most precise), and big disagreements are flagged.
+ *
+ * Automatic video scouting (video_reports) is attached to each record for a
+ * side-by-side view (`video`), and fills the gaps: a robot-match no human
+ * scouted becomes a record from the video alone (`source: 'video'`), so stats
+ * still count it but every screen can label it.
  */
 import { CYCLE_WEIGHT_BY_ROBOT_COUNT } from '@/config/defaults';
 import { INTAKE_SOURCES, SHELVES, type DefenseType, type Mechanism, type MechStatus, type ProblemFlag } from '@/game/harvestHavoc.config';
-import type { Alliance, MatchRow, RobotReport, ScoutEvent, ScoutSubmission, Station } from '@/data/types';
+import type { Alliance, MatchRow, RobotReport, ScoutEvent, ScoutSubmission, Station, VideoReport } from '@/data/types';
 import { computeCycles, type CycleOptions, type CycleResult } from './cycles';
 import { emptyTotals, robotPoints, totalsFromEvents, totalsFromOverride, type RobotPoints, type RobotTotals } from './derive';
 
@@ -19,8 +24,24 @@ export interface ScoutedRobot {
   cycles: CycleResult | null;
 }
 
+/** The video scout's view of one robot-match, computed with the same code as a human scout's taps. */
+export interface VideoSide {
+  report: VideoReport;
+  events: ScoutEvent[];
+  totals: RobotTotals;
+  points: RobotPoints;
+  cycles: CycleResult | null;
+  /** video total − human total (null for a video-only record) */
+  diff: number | null;
+  /** |diff| within the disagreement threshold (null for a video-only record) */
+  agrees: boolean | null;
+}
+
 export interface TeamMatchRecord {
   key: string;
+  /** 'video' = no human scouted this robot-match; everything comes from the video scout */
+  source: 'human' | 'video';
+  video: VideoSide | null;
   team: string;
   matchKey: string;
   matchNumber: number;
@@ -54,6 +75,39 @@ export interface BuildRecordsInput {
   matches: readonly MatchRow[];
   cycleOpts: CycleOptions;
   disagreePoints: number;
+  /** automatic video scouting; optional */
+  video?: readonly VideoReport[];
+}
+
+/** A video report's events as ScoutEvents (stable ids, a synthetic submission id). */
+export function videoEvents(v: VideoReport): ScoutEvent[] {
+  return (v.events ?? []).map((e, i) => ({
+    id: `video:${v.id}:${i}`,
+    submission_id: `video:${v.id}`,
+    team_id: v.team_id,
+    t_ms: Math.max(0, Math.round(Number(e.t_ms) || 0)),
+    phase: e.phase,
+    action: e.action,
+    piece: e.piece ?? null,
+    target: e.target ?? null,
+    detail: e.detail ?? null,
+  }));
+}
+
+function videoSide(v: VideoReport, opts: CycleOptions, human: RobotPoints | null, disagreePoints: number): VideoSide {
+  const events = videoEvents(v);
+  const totals = totalsFromEvents(events);
+  const points = robotPoints(totals);
+  const diff = human ? points.total - human.total : null;
+  return {
+    report: v,
+    events,
+    totals,
+    points,
+    cycles: computeCycles(events, opts),
+    diff,
+    agrees: diff === null ? null : Math.abs(diff) <= disagreePoints,
+  };
 }
 
 function avgTotals(list: RobotTotals[]): RobotTotals {
@@ -132,6 +186,8 @@ export function buildRecords(input: BuildRecordsInput): TeamMatchRecord[] {
     if (arr) arr.push(r);
     else groups.set(key, [r]);
   }
+  const videoBy = new Map<string, VideoReport>();
+  for (const v of input.video ?? []) if (!v.deleted_at) videoBy.set(`${v.match_key}:${v.team_id}`, v);
   const records: TeamMatchRecord[] = [];
   for (const [key, scouts] of groups) {
     const [matchKey, team] = [key.slice(0, key.lastIndexOf(':')), key.slice(key.lastIndexOf(':') + 1)];
@@ -162,8 +218,11 @@ export function buildRecords(input: BuildRecordsInput): TeamMatchRecord[] {
     const spread = Math.max(...totalsList) - Math.min(...totalsList);
     const station = (scouts[0].report?.station ?? null) as Station | null;
     const alliance: Alliance = m ? (m.red.includes(team) ? 'red' : 'blue') : s0.alliance;
+    const vr = videoBy.get(key);
     records.push({
       key,
+      source: 'human',
+      video: vr ? videoSide(vr, input.cycleOpts, points, input.disagreePoints) : null,
       team,
       matchKey,
       matchNumber: m?.match_number ?? (Number(matchKey.replace(/\D/g, '')) || 0),
@@ -199,6 +258,42 @@ export function buildRecords(input: BuildRecordsInput): TeamMatchRecord[] {
       pointsSpread: spread,
       disagree: scouts.length > 1 && spread > input.disagreePoints,
       totalsOnly: scouts.every((s) => !!s.report?.totals_override),
+    });
+  }
+  // gaps: robot-matches only the video scout saw
+  for (const [key, v] of videoBy) {
+    if (groups.has(key)) continue;
+    const m = matchBy.get(v.match_key);
+    const side = videoSide(v, input.cycleOpts, null, input.disagreePoints);
+    const alliance: Alliance = m ? (m.red.includes(v.team_id) ? 'red' : m.blue.includes(v.team_id) ? 'blue' : v.alliance) : v.alliance;
+    records.push({
+      key,
+      source: 'video',
+      video: side,
+      team: v.team_id,
+      matchKey: v.match_key,
+      matchNumber: m?.match_number ?? (Number(v.match_key.replace(/\D/g, '')) || 0),
+      compLevel: m?.comp_level ?? (v.match_key.startsWith('Q') ? 'qm' : 'po'),
+      alliance,
+      station: (['1', '2', '3'].includes(v.station) ? `${alliance}${v.station}` : null) as Station | null,
+      scouts: [],
+      totals: side.totals,
+      points: side.points,
+      cycles: side.cycles,
+      cycleRobotCount: null,
+      // video cycle times are machine-timed but the shelf reader confirms fills ~0.5 s late: weigh them like a
+      // scout watching three robots
+      cycleWeight: CYCLE_WEIGHT_BY_ROBOT_COUNT[3] ?? 0.35,
+      flags: [],
+      flagDisagree: false,
+      defense: { played: false, type: null, rating: null },
+      driverRating: null,
+      notes: [],
+      mechanisms: {},
+      relRanks: [],
+      pointsSpread: 0,
+      disagree: false,
+      totalsOnly: false,
     });
   }
   return records.sort((a, b) => (a.compLevel === b.compLevel ? a.matchNumber - b.matchNumber : a.compLevel === 'qm' ? -1 : 1));

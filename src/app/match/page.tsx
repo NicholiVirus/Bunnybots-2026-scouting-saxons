@@ -16,6 +16,7 @@ import { FreshnessBanner } from '@/components/FreshnessBanner';
 import { useFlagIndex } from '@/data/scoutHooks';
 import { SOURCE_LABEL } from '@/sources/DataSource';
 import { MatchScouting } from '@/components/MatchScouting';
+import { VideoScouting } from '@/components/VideoScouting';
 
 export default function MatchPage() {
   return (
@@ -73,6 +74,7 @@ function MatchInner() {
         </>
       )}
       <MatchScouting m={m} />
+      <VideoScouting m={m} />
     </div>
   );
 }
