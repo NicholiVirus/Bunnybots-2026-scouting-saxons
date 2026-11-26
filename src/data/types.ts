@@ -191,6 +191,30 @@ export interface VideoReport extends Synced {
   source_version: string;
 }
 
+export type StreamState = 'queued' | 'waiting' | 'recording' | 'ended' | 'stopped' | 'error';
+
+/** A live-stream link the video PC (`bunnyscout saxon-worker`) records and splits into matches. */
+export interface VideoStream extends Synced {
+  id: string;
+  url: string;
+  /** First match in the stream ('' = the next one not done yet). */
+  first_label: string;
+  /** Seconds: one match start in the stream, to learn the field's start sound (only needed once per event). */
+  example_start: number | null;
+  /** A channel's live link: wait for the next stream when one ends. */
+  keep_waiting: boolean;
+  /** Set by the app. */
+  requested: 'run' | 'stop';
+  /** The rest is written by the video PC. */
+  state: StreamState;
+  status: string;
+  title: string;
+  matches: { label: string; at_s: number; note?: string }[];
+  worker: string;
+  heartbeat_at: string | null;
+  created_at?: string;
+}
+
 export interface RobotReport extends Synced {
   /** `${submission_id}:${team_id}` */
   id: string;
@@ -423,6 +447,7 @@ export type SyncedTable =
   | 'official_alliances'
   | 'scout_submissions'
   | 'video_reports'
+  | 'video_streams'
   | 'pit_reports'
   | 'photos'
   | 'picklist_entries'

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { MatchRow, ScoutEvent, ScoutSubmission, Station, VideoReport } from '@/data/types';
 import { buildRecords } from '@/scouting/records';
-import { lineupMismatches, parseVideoFile, VIDEO_FORMAT } from './video';
+import { lineupMismatches, parseClock, parseStreamLink, parseVideoFile, VIDEO_FORMAT, workerOnline } from './video';
 
 const match: MatchRow = {
   key: 'Q1',
@@ -133,5 +133,38 @@ describe('video scouting', () => {
     expect(p.warnings.join(' ')).toMatch(/skipped/);
     expect(() => parseVideoFile('{"rows": []}')).toThrow(/video scouting file/);
     expect(lineupMismatches(p.rows, new Map([['Q1', { red: ['611', '321', '1'], blue: [] }]]))).toEqual(['Q1: 449 is not on red']);
+  });
+});
+
+describe('stream links', () => {
+  it('accepts YouTube videos, live pages and channels', () => {
+    expect(parseStreamLink('https://youtu.be/4kpO6woeCaU')).toEqual({ ok: true, url: 'https://www.youtube.com/watch?v=4kpO6woeCaU', site: 'youtube', channel: false });
+    expect(parseStreamLink('youtube.com/watch?v=4kpO6woeCaU&t=30s')).toMatchObject({ ok: true, url: 'https://www.youtube.com/watch?v=4kpO6woeCaU' });
+    expect(parseStreamLink('https://www.youtube.com/live/4kpO6woeCaU?si=x')).toMatchObject({ ok: true, url: 'https://www.youtube.com/watch?v=4kpO6woeCaU' });
+    expect(parseStreamLink('https://www.youtube.com/@BlairRobotics/live')).toEqual({ ok: true, url: 'https://www.youtube.com/@BlairRobotics/live', site: 'youtube', channel: true });
+    expect(parseStreamLink('https://m.youtube.com/@BlairRobotics')).toMatchObject({ ok: true, url: 'https://www.youtube.com/@BlairRobotics/live', channel: true });
+  });
+  it('accepts Twitch channels and past broadcasts', () => {
+    expect(parseStreamLink('twitch.tv/FIRSTinspires')).toEqual({ ok: true, url: 'https://www.twitch.tv/firstinspires', site: 'twitch', channel: true });
+    expect(parseStreamLink('https://www.twitch.tv/videos/123456')).toMatchObject({ ok: true, channel: false });
+  });
+  it('rejects other links', () => {
+    expect(parseStreamLink('https://vimeo.com/1')).toMatchObject({ ok: false });
+    expect(parseStreamLink('https://www.youtube.com/results?search_query=x')).toMatchObject({ ok: false });
+    expect(parseStreamLink('not a link at all')).toMatchObject({ ok: false });
+  });
+  it('reads clock times', () => {
+    expect(parseClock('')).toBeNull();
+    expect(parseClock('3725')).toBe(3725);
+    expect(parseClock('62:05')).toBe(3725);
+    expect(parseClock('1:02:05')).toBe(3725);
+    expect(parseClock('1:02:05.5')).toBe(3725.5);
+    expect(parseClock('soon')).toBeNaN();
+  });
+  it('knows when the video PC is online', () => {
+    const now = Date.parse('2026-12-05T15:00:00Z');
+    expect(workerOnline('2026-12-05T14:59:30Z', now)).toBe(true);
+    expect(workerOnline('2026-12-05T14:55:00Z', now)).toBe(false);
+    expect(workerOnline(null, now)).toBe(false);
   });
 });

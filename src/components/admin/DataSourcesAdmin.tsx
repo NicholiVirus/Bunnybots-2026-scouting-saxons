@@ -17,6 +17,7 @@ import { FreshnessBanner } from '@/components/FreshnessBanner';
 import { Badge, Button, Card, Field, Segmented, Toggle, inputCls } from '@/components/ui';
 import { saveSetting } from './SettingsAdmin';
 import { formatAgo } from '@/lib/util';
+import { LiveStreamsAdmin } from './LiveStreamsAdmin';
 
 export function DataSourcesAdmin() {
   const prefs = usePrefs();
@@ -25,6 +26,7 @@ export function DataSourcesAdmin() {
       {prefs.demo && <DemoControls />}
       <LiveFeed />
       <CsvImport />
+      <LiveStreamsAdmin />
       <VideoImport />
       <Snapshots />
     </div>

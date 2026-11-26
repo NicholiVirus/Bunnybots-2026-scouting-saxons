@@ -96,3 +96,54 @@ export function lineupMismatches(rows: VideoImport['rows'], lineups: Map<string,
   }
   return out;
 }
+
+// ── Live-stream links (video_streams) ──────────────────────────────────────
+
+export type StreamLink = { ok: true; url: string; site: 'youtube' | 'twitch'; channel: boolean } | { ok: false; error: string };
+
+/**
+ * A YouTube / Twitch link the video PC can record. `channel` = a channel's live page (youtube.com/@x/live,
+ * twitch.tv/x), which shows whatever that channel streams next.
+ */
+export function parseStreamLink(text: string): StreamLink {
+  let u: URL;
+  try {
+    u = new URL(text.trim().startsWith('http') ? text.trim() : `https://${text.trim()}`);
+  } catch {
+    return { ok: false, error: 'Not a link' };
+  }
+  const host = u.hostname.replace(/^(www|m)\./, '');
+  const path = u.pathname.replace(/\/+$/, '');
+  if (host === 'youtu.be' && /^\/[\w-]{11}$/.test(path)) return { ok: true, url: `https://www.youtube.com/watch?v=${path.slice(1)}`, site: 'youtube', channel: false };
+  if (host === 'youtube.com' || host === 'music.youtube.com') {
+    const v = u.searchParams.get('v');
+    if (path === '/watch' && v && /^[\w-]{11}$/.test(v)) return { ok: true, url: `https://www.youtube.com/watch?v=${v}`, site: 'youtube', channel: false };
+    const live = path.match(/^\/live\/([\w-]{11})$/);
+    if (live) return { ok: true, url: `https://www.youtube.com/watch?v=${live[1]}`, site: 'youtube', channel: false };
+    if (/^\/(@[\w.-]+|channel\/UC[\w-]{22}|c\/[\w.-]+|user\/[\w.-]+)\/live$/.test(path)) return { ok: true, url: `https://www.youtube.com${path}`, site: 'youtube', channel: true };
+    if (/^\/(@[\w.-]+|channel\/UC[\w-]{22}|c\/[\w.-]+|user\/[\w.-]+)$/.test(path)) return { ok: true, url: `https://www.youtube.com${path}/live`, site: 'youtube', channel: true };
+    return { ok: false, error: 'Use a video link (youtube.com/watch?v=…, youtu.be/…) or a channel’s live link (youtube.com/@channel/live)' };
+  }
+  if (host === 'twitch.tv') {
+    const vod = path.match(/^\/videos\/(\d+)$/);
+    if (vod) return { ok: true, url: `https://www.twitch.tv/videos/${vod[1]}`, site: 'twitch', channel: false };
+    if (/^\/[A-Za-z0-9_]{3,25}$/.test(path)) return { ok: true, url: `https://www.twitch.tv${path.toLowerCase()}`, site: 'twitch', channel: true };
+    return { ok: false, error: 'Use a Twitch channel (twitch.tv/name) or a past broadcast (twitch.tv/videos/…)' };
+  }
+  return { ok: false, error: 'Only YouTube and Twitch links are supported' };
+}
+
+/** "1:02:05", "62:05" or "3725" (seconds) → seconds; '' → null; anything else → NaN. */
+export function parseClock(text: string): number | null {
+  const t = text.trim();
+  if (!t) return null;
+  if (!/^\d+(:\d{1,2}){0,2}(\.\d+)?$/.test(t)) return NaN;
+  return t.split(':').reduce((acc, part) => acc * 60 + Number(part), 0);
+}
+
+/** The video PC counts as online if it reported in the last 2 minutes (it checks in every ~15 s). */
+export function workerOnline(heartbeat: string | null | undefined, nowMs = Date.now()): boolean {
+  if (!heartbeat) return false;
+  const t = Date.parse(heartbeat);
+  return Number.isFinite(t) && nowMs - t < 120_000;
+}
