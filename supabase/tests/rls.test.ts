@@ -11,7 +11,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 const root = path.resolve(__dirname, '..');
 const shim = readFileSync(path.join(root, 'tests', 'supabase-shim.sql'), 'utf8');
-const migration = ['0001_init.sql', '0002_admin_passcode.sql', '0003_master_admin.sql'].map((f) => readFileSync(path.join(root, 'migrations', f), 'utf8')).join('\n');
+const migration = ['0001_init.sql', '0002_admin_passcode.sql', '0003_master_admin.sql', '0004_video_reports.sql', '0005_video_streams.sql'].map((f) => readFileSync(path.join(root, 'migrations', f), 'utf8')).join('\n');
 const seed = readFileSync(path.join(root, 'seed.sql'), 'utf8');
 
 const U = {
@@ -299,6 +299,41 @@ describe('Admin', () => {
       U.scout,
     ]);
     expect(n).toBeGreaterThan(0);
+  });
+});
+
+describe('Video scouting (video_reports, video_streams)', () => {
+  const report = `insert into public.video_reports (id, match_key, team_id, alliance) values ('Q1:611', 'Q1', '611', 'red')`;
+  const stream = `insert into public.video_streams (id, url) values ('s1', 'https://www.youtube.com/@x/live')`;
+
+  it('scouts and viewers can read but not write video results or stream links', async () => {
+    for (const who of [U.scout, U.viewer]) {
+      await asUser(who);
+      await expect(rows(report)).rejects.toThrow(DENIED);
+      await expect(rows(stream)).rejects.toThrow(DENIED);
+    }
+  });
+
+  it('a strategist (the video PC) adds a link, reports progress and uploads results; everyone signed in sees them', async () => {
+    await asUser(U.strategist);
+    expect(await affected(stream)).toBe(1);
+    expect(
+      await affected(`update public.video_streams set state = 'recording', status = 'recording', heartbeat_at = now(),
+        matches = '[{"label":"Q1","at_s":63}]' where id = 's1'`),
+    ).toBe(1);
+    expect(await affected(report)).toBe(1);
+    await expect(rows(`update public.video_streams set state = 'flying' where id = 's1'`)).rejects.toThrow(/check constraint/);
+    await asUser(U.viewer);
+    expect(await rows(`select state, requested from public.video_streams where id = 's1'`)).toEqual([{ state: 'recording', requested: 'run' }]);
+    expect((await rows(`select id from public.video_reports`)).length).toBe(1);
+    expect(await affected(`update public.video_streams set requested = 'stop' where id = 's1'`)).toBe(0);
+  });
+
+  it('nothing is visible without signing in', async () => {
+    await asAnon();
+    await expect(rows(`select * from public.video_streams`)).rejects.toThrow(DENIED);
+    await expect(rows(`select * from public.video_reports`)).rejects.toThrow(DENIED);
+    await asSuper();
   });
 });
 

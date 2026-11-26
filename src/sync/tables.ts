@@ -17,6 +17,8 @@ export const SYNC_TABLES: readonly TableSpec[] = [
   { name: 'rankings', key: 'team_id', realtime: true },
   { name: 'official_alliances', key: 'number', realtime: true },
   { name: 'scout_submissions', key: 'id', realtime: true },
+  { name: 'video_reports', key: 'id', realtime: true },
+  { name: 'video_streams', key: 'id', realtime: true },
   { name: 'pit_reports', key: 'id', realtime: true },
   { name: 'photos', key: 'id', realtime: true },
   { name: 'picklist_meta', key: 'picking_team', realtime: true },

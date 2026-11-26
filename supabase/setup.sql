@@ -1016,3 +1016,95 @@ insert into public.picklist_meta (picking_team, locked) values
   ('611', false),
   ('526', false)
 on conflict (picking_team) do nothing;
+
+-- ═══════════════════════════════════════════════════════════════════════════
+--  Video scouting: automatic results from BunnyBotsAutomaticScouting, shown
+--  next to the human scouting (team / match pages) and filling robot-matches
+--  no human scouted. Same as migrations/0004_video_reports.sql.
+-- ═══════════════════════════════════════════════════════════════════════════
+create table if not exists public.video_reports (
+  id text primary key,                       -- "<match_key>:<team_id>"
+  match_key text not null,
+  team_id text not null,
+  alliance text not null check (alliance in ('red', 'blue')),
+  station text not null default '',
+  events jsonb not null default '[]',        -- [{t_ms, phase, action, piece?, target?, detail?}] like scout_events
+  points jsonb not null default '{}',        -- the video system's own estimate
+  confidence jsonb not null default '{}',
+  metrics jsonb not null default '{}',
+  source_version text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  deleted_at timestamptz
+);
+create index if not exists video_reports_match_idx on public.video_reports (match_key);
+create index if not exists video_reports_team_idx on public.video_reports (team_id);
+create index if not exists video_reports_updated_idx on public.video_reports (updated_at);
+
+drop trigger if exists touch_video_reports on public.video_reports;
+create trigger touch_video_reports before insert or update on public.video_reports
+  for each row execute function public.touch_updated_at();
+
+alter table public.video_reports enable row level security;
+revoke all on public.video_reports from anon;
+
+drop policy if exists video_reports_select on public.video_reports;
+drop policy if exists video_reports_insert on public.video_reports;
+drop policy if exists video_reports_update on public.video_reports;
+drop policy if exists video_reports_delete on public.video_reports;
+create policy video_reports_select on public.video_reports for select to authenticated using (public.is_member());
+create policy video_reports_insert on public.video_reports for insert to authenticated with check (public.is_strategist());
+create policy video_reports_update on public.video_reports for update to authenticated
+  using (public.is_strategist()) with check (public.is_strategist());
+create policy video_reports_delete on public.video_reports for delete to authenticated using (public.is_strategist());
+
+do $$
+begin
+  alter publication supabase_realtime add table public.video_reports;
+exception when duplicate_object then null;
+end $$;
+
+-- ── Live-stream links for the video scout ─────────────────────────────────
+--  Same as migrations/0005_video_streams.sql.
+create table if not exists public.video_streams (
+  id text primary key,
+  url text not null,
+  first_label text not null default '',     -- first match in the stream ('' = the next one not done yet)
+  example_start real,                        -- seconds: one match start in the stream (teaches the start sound)
+  keep_waiting boolean not null default false, -- a channel's live link: wait for the next stream when one ends
+  requested text not null default 'run' check (requested in ('run', 'stop')),       -- set by the app
+  state text not null default 'queued'
+    check (state in ('queued', 'waiting', 'recording', 'ended', 'stopped', 'error')), -- set by the video PC
+  status text not null default '',
+  title text not null default '',
+  matches jsonb not null default '[]',       -- [{label, at_s, note?}] matches found in the stream
+  worker text not null default '',
+  heartbeat_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  deleted_at timestamptz
+);
+create index if not exists video_streams_updated_idx on public.video_streams (updated_at);
+
+drop trigger if exists touch_video_streams on public.video_streams;
+create trigger touch_video_streams before insert or update on public.video_streams
+  for each row execute function public.touch_updated_at();
+
+alter table public.video_streams enable row level security;
+revoke all on public.video_streams from anon;
+
+drop policy if exists video_streams_select on public.video_streams;
+drop policy if exists video_streams_insert on public.video_streams;
+drop policy if exists video_streams_update on public.video_streams;
+drop policy if exists video_streams_delete on public.video_streams;
+create policy video_streams_select on public.video_streams for select to authenticated using (public.is_member());
+create policy video_streams_insert on public.video_streams for insert to authenticated with check (public.is_strategist());
+create policy video_streams_update on public.video_streams for update to authenticated
+  using (public.is_strategist()) with check (public.is_strategist());
+create policy video_streams_delete on public.video_streams for delete to authenticated using (public.is_strategist());
+
+do $$
+begin
+  alter publication supabase_realtime add table public.video_streams;
+exception when duplicate_object then null;
+end $$;
