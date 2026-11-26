@@ -39,7 +39,6 @@ Fork this repository on GitHub (or push it to your team's org).
 Supabase → **Authentication**:
 1. **Sign In / Providers → Email**: on. For an event, turning **Confirm email** off makes sign-up instant.
 2. **URL Configuration**: set **Site URL** to your future Vercel URL (e.g. `https://saxon-scout.vercel.app`) and add **Redirect URL** `https://saxon-scout.vercel.app/auth/callback/`. (Come back and fix this after step 2.5 if the URL changes.)
-3. *(Optional)* **Google** provider: follow Supabase's Google guide, paste the Client ID/Secret.
 
 ### 2.4 Copy your keys (1 min)
 Supabase → **Project Settings → API**: copy the **Project URL** and the **anon public** key. (The anon key is safe in a browser; RLS decides what each role can do.)
@@ -51,11 +50,15 @@ Supabase → **Project Settings → API**: copy the **Project URL** and the **an
    |---|---|
    | `NEXT_PUBLIC_SUPABASE_URL` | Project URL from 2.4 |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon key from 2.4 |
-   | `NEXT_PUBLIC_TBA_CLONE_URL` | *(optional)* 449's results site — can also be set later in the app |
+   | `NEXT_PUBLIC_TBA_CLONE_URL` | *(optional)* 449's results site. Defaults to `https://blair-robot-449.shinyapps.io/the_bunnybots_alliance`; can also be changed in Admin → Data sources |
 3. **Deploy**. [`vercel.json`](vercel.json) already sets the build command (`npm run build`) and output folder (`out`).
 
 ### 2.6 First sign-in = admin (2 min)
 Open the site, **Create account**. **The very first account becomes Admin.** Everyone else starts as **Viewer**; promote them in **Admin → Users & roles** (Scout / Strategist / Admin).
+
+**More admins:** anyone signed in can open **Admin** and enter the admin passcode (default `SSTI`) to become an Admin. The server checks the passcode (`public.claim_admin`), allows 5 wrong tries per 15 minutes per account, and the role change lands in the audit log. To change the passcode, run in SQL Editor: `update private.admin_passcode set sha256 = encode(sha256(convert_to(upper('NEWCODE'), 'UTF8')), 'hex');` and update `PASSCODE_SHA256` in `src/components/admin/PasscodeGate.tsx`.
+
+**Master admin:** one account is the master admin. It is always an Admin, cannot be demoted or removed through the app, and is the only account that can demote other admins (admins can still step down themselves). Change it only in SQL Editor: `update public.profiles set is_master = true, role = 'admin' where email = 'someone@example.com';` (and `set is_master = false` on the old one).
 
 > Locked out? In Supabase SQL Editor: `update public.profiles set role = 'admin' where email = 'you@example.com';`
 
@@ -106,6 +109,14 @@ Open the site **once while online** (that caches everything), then:
 **3:00 PM** — **Board**: tap picks/declines as they happen (or it follows the official feed automatically). Send the person at the field the **Quick card** tab. Use **Predictor → Accept / decline helper** if 611 or 526 is invited.
 
 ---
+
+### Video scouting (automatic)
+The [BunnyBotsAutomaticScouting](https://github.com/Alik9151/BunnyBotsAutomaticScouting) system watches each match video (calibrates the cameras from the AprilTags, tracks all six robots, reads bumper numbers, credits PANTRY fills to the robot at the shelf) and sends its results here as **video_reports** — one per robot per match, in the same event vocabulary as a scout's taps.
+- **Setup (once):** run [`supabase/migrations/0004_video_reports.sql`](supabase/migrations/0004_video_reports.sql), then [`0005_video_streams.sql`](supabase/migrations/0005_video_streams.sql), in the Supabase SQL Editor (new installs get both from `setup.sql`).
+- **Getting results in:** on the video PC either `bunnyscout saxon-push event.json --url <Project URL> --anon-key <anon key> --email <strategist or admin account>` (password from `SAXON_PASSWORD` or a prompt; row-level security applies, no service key), or `bunnyscout saxon-export event.json` and import `saxon_video.json` in **Admin → Data sources → Video scouting** (works offline; warns about team numbers that are not in the match lineup).
+- **Live streams (easiest):** paste the event's YouTube or Twitch link in **Admin → Data sources → Live streams** (a video link, or a channel's live link like `youtube.com/@channel/live`, which keeps waiting for the next stream). On the video PC run `bunnyscout saxon-worker event.json --url <Project URL> --anon-key <anon key> --email <strategist or admin account>` and leave it running: it records the stream, finds every match by the field's start sound, names it from the schedule, analyses it and uploads the results a few minutes after each match. The card shows whether the video PC is online, what it is doing, and every match found (a match cut off by a stream drop is marked). **Stop** asks the video PC to stop; past broadcasts work too (give one match start the first time).
+- **Where it shows:** the match page has a **Video scouting** card (video points next to the scouts', *agrees* / *+N* flags, what it scored by level, taxi/park, how sure it was); team pages have a **Video** column in match history.
+- **Stats:** a robot-match no human scouted is filled from the video and labelled **video only**; where a scout covered the robot, the scout's numbers are used and the video is only shown alongside. OVEN pieces from the video are an estimate (the official OVEN count shared by OVEN visits).
 
 ## 5. Pre-event checklist
 

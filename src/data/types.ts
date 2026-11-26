@@ -153,6 +153,68 @@ export interface TotalsOverride {
   taxi: boolean | null;
 }
 
+/**
+ * One robot in one match as seen by the automatic video scout (BunnyBotsAutomaticScouting: camera
+ * calibration, robot tracking, bumper-number reading). `events` use the same vocabulary as a human
+ * scout's taps, so points and cycles come from the same code. Written by the video PC
+ * (`bunnyscout saxon-push`) or imported from its JSON file (Admin -> Data sources).
+ */
+export interface VideoEvent {
+  t_ms: number;
+  phase: Phase;
+  action: EventAction;
+  piece?: Piece | null;
+  target?: EventTarget | null;
+  detail?: string | null;
+}
+
+export interface VideoReport extends Synced {
+  /** `${match_key}:${team_id}` */
+  id: string;
+  match_key: string;
+  team_id: TeamId;
+  alliance: Alliance;
+  station: string;
+  events: VideoEvent[];
+  /** The video system's own estimate (its OVEN number is the official count shared by OVEN visits). */
+  points: { taxi?: number | null; pantry_est?: number | null; oven_est?: number | null; endgame?: number | null; total_est?: number | null };
+  /** id: how sure the team number is (0..1); pantry: confident / low / ambiguous credit; tracked_frac: share of the match seen. */
+  confidence: {
+    id?: number | null;
+    id_unsure_frac?: number | null;
+    id_basis?: string | null;
+    pantry?: string | null;
+    oven_basis?: string | null;
+    tracked_frac?: number | null;
+  };
+  metrics: Record<string, unknown>;
+  source_version: string;
+}
+
+export type StreamState = 'queued' | 'waiting' | 'recording' | 'ended' | 'stopped' | 'error';
+
+/** A live-stream link the video PC (`bunnyscout saxon-worker`) records and splits into matches. */
+export interface VideoStream extends Synced {
+  id: string;
+  url: string;
+  /** First match in the stream ('' = the next one not done yet). */
+  first_label: string;
+  /** Seconds: one match start in the stream, to learn the field's start sound (only needed once per event). */
+  example_start: number | null;
+  /** A channel's live link: wait for the next stream when one ends. */
+  keep_waiting: boolean;
+  /** Set by the app. */
+  requested: 'run' | 'stop';
+  /** The rest is written by the video PC. */
+  state: StreamState;
+  status: string;
+  title: string;
+  matches: { label: string; at_s: number; note?: string }[];
+  worker: string;
+  heartbeat_at: string | null;
+  created_at?: string;
+}
+
 export interface RobotReport extends Synced {
   /** `${submission_id}:${team_id}` */
   id: string;
@@ -384,6 +446,8 @@ export type SyncedTable =
   | 'rankings'
   | 'official_alliances'
   | 'scout_submissions'
+  | 'video_reports'
+  | 'video_streams'
   | 'pit_reports'
   | 'photos'
   | 'picklist_entries'

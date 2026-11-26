@@ -18,7 +18,7 @@ import {
   type Shelf,
   type Target,
 } from '@/game/harvestHavoc.config';
-import type { MatchRow, PitData, PitReport, RobotReport, ScoutEvent, ScoutSubmission, Team } from '@/data/types';
+import type { MatchRow, PitData, PitReport, RobotReport, ScoutEvent, ScoutSubmission, Team, VideoReport } from '@/data/types';
 import { mergePit, validatePit } from '@/catalog/pit';
 import { buildRecords, type TeamMatchRecord } from '@/scouting/records';
 import { placedPieces } from '@/scouting/derive';
@@ -122,6 +122,8 @@ export interface ModelInput {
   reports: readonly RobotReport[];
   events: readonly ScoutEvent[];
   pitReports: readonly PitReport[];
+  /** automatic video scouting (side by side, and fills robot-matches no human scouted) */
+  video?: readonly VideoReport[];
   settings?: { cycleBurstWindowSec?: number; cycleOutlierCapSec?: number };
 }
 
@@ -225,6 +227,7 @@ export function buildModel(input: ModelInput): AnalyticsModel {
     matches,
     cycleOpts,
     disagreePoints: DEFAULT_SETTINGS.scoutDisagreePoints,
+    video: input.video,
   });
   const recordsBy = new Map<string, TeamMatchRecord[]>();
   for (const r of records) {

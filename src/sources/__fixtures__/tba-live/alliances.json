@@ -1,0 +1,50 @@
+[
+  {
+    "alliance": "Alliance 1",
+    "captain": 12,
+    "first_pick": 18,
+    "second_pick": 13
+  },
+  {
+    "alliance": "Alliance 2",
+    "captain": 2,
+    "first_pick": 11,
+    "second_pick": 22
+  },
+  {
+    "alliance": "Alliance 3",
+    "captain": 8,
+    "first_pick": 14,
+    "second_pick": 10
+  },
+  {
+    "alliance": "Alliance 4",
+    "captain": 7,
+    "first_pick": 15,
+    "second_pick": 21
+  },
+  {
+    "alliance": "Alliance 5",
+    "captain": 19,
+    "first_pick": 17,
+    "second_pick": 6
+  },
+  {
+    "alliance": "Alliance 6",
+    "captain": 16,
+    "first_pick": 9,
+    "second_pick": 1
+  },
+  {
+    "alliance": "Alliance 7",
+    "captain": 20,
+    "first_pick": 23,
+    "second_pick": 24
+  },
+  {
+    "alliance": "Alliance 8",
+    "captain": 3,
+    "first_pick": 5,
+    "second_pick": 4
+  }
+]

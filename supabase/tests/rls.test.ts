@@ -11,7 +11,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 const root = path.resolve(__dirname, '..');
 const shim = readFileSync(path.join(root, 'tests', 'supabase-shim.sql'), 'utf8');
-const migration = readFileSync(path.join(root, 'migrations', '0001_init.sql'), 'utf8');
+const migration = ['0001_init.sql', '0002_admin_passcode.sql', '0003_master_admin.sql', '0004_video_reports.sql', '0005_video_streams.sql'].map((f) => readFileSync(path.join(root, 'migrations', f), 'utf8')).join('\n');
 const seed = readFileSync(path.join(root, 'seed.sql'), 'utf8');
 
 const U = {
@@ -33,7 +33,7 @@ async function asUser(id: string) {
 async function asAnon() {
   await db.exec(`reset role; set request.jwt.claim.sub = ''; set role anon;`);
 }
-const DENIED = /row-level security|permission denied|only an admin|cannot remove the last admin/i;
+const DENIED = /row-level security|permission denied|only an admin|cannot remove the last admin|master admin/i;
 
 async function rows(sql: string, params: unknown[] = []) {
   return (await db.query<Record<string, unknown>>(sql, params)).rows;
@@ -299,5 +299,138 @@ describe('Admin', () => {
       U.scout,
     ]);
     expect(n).toBeGreaterThan(0);
+  });
+});
+
+describe('Video scouting (video_reports, video_streams)', () => {
+  const report = `insert into public.video_reports (id, match_key, team_id, alliance) values ('Q1:611', 'Q1', '611', 'red')`;
+  const stream = `insert into public.video_streams (id, url) values ('s1', 'https://www.youtube.com/@x/live')`;
+
+  it('scouts and viewers can read but not write video results or stream links', async () => {
+    for (const who of [U.scout, U.viewer]) {
+      await asUser(who);
+      await expect(rows(report)).rejects.toThrow(DENIED);
+      await expect(rows(stream)).rejects.toThrow(DENIED);
+    }
+  });
+
+  it('a strategist (the video PC) adds a link, reports progress and uploads results; everyone signed in sees them', async () => {
+    await asUser(U.strategist);
+    expect(await affected(stream)).toBe(1);
+    expect(
+      await affected(`update public.video_streams set state = 'recording', status = 'recording', heartbeat_at = now(),
+        matches = '[{"label":"Q1","at_s":63}]' where id = 's1'`),
+    ).toBe(1);
+    expect(await affected(report)).toBe(1);
+    await expect(rows(`update public.video_streams set state = 'flying' where id = 's1'`)).rejects.toThrow(/check constraint/);
+    await asUser(U.viewer);
+    expect(await rows(`select state, requested from public.video_streams where id = 's1'`)).toEqual([{ state: 'recording', requested: 'run' }]);
+    expect((await rows(`select id from public.video_reports`)).length).toBe(1);
+    expect(await affected(`update public.video_streams set requested = 'stop' where id = 's1'`)).toBe(0);
+  });
+
+  it('nothing is visible without signing in', async () => {
+    await asAnon();
+    await expect(rows(`select * from public.video_streams`)).rejects.toThrow(DENIED);
+    await expect(rows(`select * from public.video_reports`)).rejects.toThrow(DENIED);
+    await asSuper();
+  });
+});
+
+describe('Admin by passcode', () => {
+  const claim = async (code: string) => (await rows(`select public.claim_admin($1) as r`, [code]))[0].r;
+  const roleOf = async (id: string) => {
+    await asSuper();
+    return (await rows(`select role from public.profiles where id = $1`, [id]))[0].role;
+  };
+
+  it('the passcode itself is unreadable through the API', async () => {
+    await asUser(U.viewer);
+    await expect(rows(`select * from private.admin_passcode`)).rejects.toThrow(/permission denied/i);
+    await asAnon();
+    await expect(rows(`select public.claim_admin('SSTI')`)).rejects.toThrow(/permission denied/i);
+  });
+
+  it('a wrong passcode changes nothing; the right one (any case) makes a second admin', async () => {
+    const fresh = '00000000-0000-4000-8000-0000000000aa';
+    await asSuper();
+    await db.query(`insert into auth.users (id, email, raw_user_meta_data) values ($1, 'fresh@example.com', '{"full_name":"Fresh"}')`, [fresh]);
+    expect(await roleOf(fresh)).toBe('viewer');
+    await asUser(fresh);
+    expect(await claim('nope')).toBeNull();
+    expect(await roleOf(fresh)).toBe('viewer');
+    await asUser(fresh);
+    expect(await claim(' ssti ')).toBe('admin');
+    expect(await roleOf(fresh)).toBe('admin');
+    // the original admin keeps the role: there are now two
+    expect(await roleOf(U.admin)).toBe('admin');
+    await asSuper();
+    const audit = await rows(`select actor_id from public.audit_log where table_name = 'profiles' and row_key = $1 order by id desc limit 1`, [fresh]);
+    expect(audit[0]?.actor_id).toBe(fresh);
+  });
+
+  it('locks an account out after 5 wrong guesses in 15 minutes', async () => {
+    await asUser(U.scout2);
+    for (let i = 0; i < 5; i++) expect(await claim(`bad${i}`)).toBeNull();
+    await expect(claim('SSTI')).rejects.toThrow(/too many wrong passcodes/);
+    expect(await roleOf(U.scout2)).not.toBe('admin');
+  });
+});
+
+describe('Master admin', () => {
+  const M = '00000000-0000-4000-8000-0000000000b1'; // master
+  const A = '00000000-0000-4000-8000-0000000000b2'; // passcode admin
+  const B = '00000000-0000-4000-8000-0000000000b3'; // another passcode admin
+  const roleOf = async (id: string) => {
+    await asSuper();
+    return (await rows(`select role, is_master from public.profiles where id = $1`, [id]))[0];
+  };
+
+  beforeAll(async () => {
+    await asSuper();
+    for (const [id, n] of [[M, 'master'], [A, 'a'], [B, 'b']])
+      await db.query(`insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, '{}')`, [id, `${n}@example.com`]);
+    // the SQL Editor path makes the master
+    await db.query(`update public.profiles set role = 'admin', is_master = true where id = $1`, [M]);
+    for (const id of [A, B]) {
+      await asUser(id);
+      await rows(`select public.claim_admin('SSTI')`);
+    }
+  });
+
+  it('only the SQL Editor can make or unmake a master admin', async () => {
+    await asUser(A);
+    await expect(rows(`update public.profiles set is_master = true where id = $1`, [A])).rejects.toThrow(/permission denied|master admin/i);
+    await asUser(M);
+    await expect(rows(`update public.profiles set is_master = false where id = $1`, [M])).rejects.toThrow(/permission denied|master admin/i);
+    expect((await roleOf(M)).is_master).toBe(true);
+  });
+
+  it('other admins cannot demote the master admin, nor each other', async () => {
+    await asUser(A);
+    await expect(rows(`update public.profiles set role = 'viewer' where id = $1`, [M])).rejects.toThrow(/master admin cannot be demoted/);
+    await expect(rows(`update public.profiles set role = 'viewer' where id = $1`, [B])).rejects.toThrow(/only the master admin can demote/);
+    expect((await roleOf(M)).role).toBe('admin');
+    expect((await roleOf(B)).role).toBe('admin');
+  });
+
+  it('the master admin cannot be demoted even by themselves through the app', async () => {
+    await asUser(M);
+    await expect(rows(`update public.profiles set role = 'scout' where id = $1`, [M])).rejects.toThrow(/master admin cannot be demoted/);
+  });
+
+  it('the master admin can demote any admin; an admin can step down themselves', async () => {
+    await asUser(M);
+    expect(await affected(`update public.profiles set role = 'scout' where id = $1`, [B])).toBe(1);
+    expect((await roleOf(B)).role).toBe('scout');
+    await asUser(A);
+    expect(await affected(`update public.profiles set role = 'strategist' where id = $1`, [A])).toBe(1);
+    expect((await roleOf(A)).role).toBe('strategist');
+  });
+
+  it('the admin list flags the master admin first', async () => {
+    await asUser(M);
+    const list = await rows(`select id, is_master from public.admin_list_profiles()`);
+    expect(list[0]).toMatchObject({ id: M, is_master: true });
   });
 });
