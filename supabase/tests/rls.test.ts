@@ -329,6 +329,22 @@ describe('Video scouting (video_reports, video_streams)', () => {
     expect(await affected(`update public.video_streams set requested = 'stop' where id = 's1'`)).toBe(0);
   });
 
+  it("the app's Stop sends only its own columns, so the video PC's progress survives", async () => {
+    await asUser(U.strategist);
+    await affected(`insert into public.video_streams (id, url) values ('s2', 'https://www.youtube.com/@y/live')`);
+    await affected(`update public.video_streams set state = 'recording', status = 'recording Q2', matches = '[{"label":"Q2","at_s":10}]' where id = 's2'`);
+    // what PostgREST runs for supabase-js upsert({ id, url, first_label, example_start, keep_waiting, requested }, { onConflict: 'id' })
+    expect(
+      await affected(`insert into public.video_streams (id, url, first_label, example_start, keep_waiting, requested)
+        values ('s2', 'https://www.youtube.com/@y/live', '', null, true, 'stop')
+        on conflict (id) do update set id = excluded.id, url = excluded.url, first_label = excluded.first_label,
+          example_start = excluded.example_start, keep_waiting = excluded.keep_waiting, requested = excluded.requested`),
+    ).toBe(1);
+    expect(await rows(`select requested, state, status, matches from public.video_streams where id = 's2'`)).toEqual([
+      { requested: 'stop', state: 'recording', status: 'recording Q2', matches: [{ label: 'Q2', at_s: 10 }] },
+    ]);
+  });
+
   it('nothing is visible without signing in', async () => {
     await asAnon();
     await expect(rows(`select * from public.video_streams`)).rejects.toThrow(DENIED);

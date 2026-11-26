@@ -23,6 +23,16 @@ const STATE: Record<StreamState, { text: string; tone: 'neutral' | 'good' | 'war
   error: { text: 'error', tone: 'bad' },
 };
 
+/**
+ * Columns the app owns; the video PC writes the rest (state, status, title, matches, worker, heartbeat).
+ * Stop / Restart / Remove send only these, so a stale copy on this device can't wipe the PC's latest progress.
+ * All of them, not just `requested`: if the "add" is still queued offline, this write replaces it and must
+ * still create the row.
+ */
+const APP_COLUMNS = ['url', 'first_label', 'example_start', 'keep_waiting', 'requested'] as const;
+
+const isRunning = (s: VideoStream) => !['ended', 'stopped', 'error'].includes(s.state);
+
 const fmtAt = (s: number) => {
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
@@ -71,10 +81,15 @@ export function LiveStreamsAdmin() {
     setExample('');
     setKeepWaiting(false);
   };
-  const stop = (s: VideoStream) => putRow('video_streams', { ...s, requested: 'stop' });
-  const restart = (s: VideoStream) => putRow('video_streams', { ...s, requested: 'run', state: 'queued', status: '' });
+  const stop = (s: VideoStream) => putRow('video_streams', { ...s, requested: 'stop' }, { columns: APP_COLUMNS });
+  // restart also resets the PC's state so it picks the link up again
+  const restart = (s: VideoStream) =>
+    putRow('video_streams', { ...s, requested: 'run', state: 'queued', status: '' }, { columns: [...APP_COLUMNS, 'state', 'status'] });
   const remove = (s: VideoStream) => {
-    if (window.confirm('Remove this stream from the list? Matches already found stay.')) void deleteRows('video_streams', [s]);
+    const running = isRunning(s);
+    const ask = running ? 'Stop recording and remove this stream from the list? Matches already found stay.' : 'Remove this stream from the list? Matches already found stay.';
+    // a running stream is also asked to stop, so the video PC doesn't keep recording a link nobody can see
+    if (window.confirm(ask)) void deleteRows('video_streams', [running ? { ...s, requested: 'stop' } : s], { columns: APP_COLUMNS });
   };
 
   const list = [...(streams ?? [])].sort((a, b) => (b.created_at ?? b.updated_at).localeCompare(a.created_at ?? a.updated_at));
@@ -134,7 +149,7 @@ export function LiveStreamsAdmin() {
           </p>
           {list.map((s) => {
             const st = STATE[s.state] ?? STATE.queued;
-            const running = !['ended', 'stopped', 'error'].includes(s.state);
+            const running = isRunning(s);
             return (
               <div key={s.id} className="rounded-xl border border-line p-2 text-sm" data-testid="video-stream">
                 <div className="flex flex-wrap items-center gap-2">

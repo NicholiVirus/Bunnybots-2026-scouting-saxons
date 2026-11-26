@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { MatchRow, ScoutEvent, ScoutSubmission, Station, VideoReport } from '@/data/types';
+import { allianceChecks } from '@/analytics/accuracy';
+import { buildModel } from '@/analytics/model';
+import { emptyBreakdown } from '@/game/scoring';
 import { buildRecords } from '@/scouting/records';
 import { lineupMismatches, parseClock, parseStreamLink, parseVideoFile, VIDEO_FORMAT, workerOnline } from './video';
 
@@ -104,6 +107,79 @@ describe('video scouting', () => {
     expect(recs).toHaveLength(0);
   });
 
+  const opts = { cycleOpts: { burstWindowMs: 3000, outlierCapMs: 60_000 }, disagreePoints: 5 };
+  const subFor = (id: string, teams: string[], match_key = 'Q1'): ScoutSubmission => ({
+    ...sub,
+    id,
+    match_key,
+    teams,
+    stations: teams.map((_, i) => `red${i + 1}` as Station),
+    robot_count: teams.length,
+  });
+
+  it('leaves out a team the lineup does not have (misread bumper number), and uses the schedule for the alliance', () => {
+    const recs = buildRecords({
+      ...opts,
+      submissions: [],
+      reports: [],
+      events: [],
+      matches: [match],
+      video: [video('3540', 'blue', []), video('526', 'red', [])],
+    });
+    expect(recs.find((r) => r.team === '3540')).toBeUndefined();
+    expect(recs.find((r) => r.team === '526')?.alliance).toBe('blue');
+    // no lineup yet: kept (nothing to check against)
+    const open = buildRecords({ ...opts, submissions: [], reports: [], events: [], matches: [{ ...match, red: [], blue: [] }], video: [video('3540', 'blue', [])] });
+    expect(open.map((r) => r.team)).toEqual(['3540']);
+  });
+
+  it('drops video events outside the vocabulary instead of crashing the stats', () => {
+    const raw = [
+      { t_ms: 10_000, phase: 'teleop', action: 'score', piece: 'Carrot', target: 'L1' },
+      { t_ms: 20_000, phase: 'teleop', action: 'score', piece: 'bunny', target: 'L2' },
+      { t_ms: 30_000, phase: 'teleop', action: 'score', piece: 'cake', target: 'L3' },
+    ] as unknown as VideoReport['events'];
+    const recs = buildRecords({
+      ...opts,
+      submissions: [],
+      reports: [],
+      events: [],
+      matches: [match],
+      video: [video('449', 'red', raw), { ...video('321', 'red', []), events: {} as unknown as VideoReport['events'] }],
+    });
+    const r = recs.find((x) => x.team === '449')!;
+    expect(r.video!.events).toHaveLength(1);
+    expect(r.totals.teleop.pantry.cake.L3).toBe(1);
+    expect(r.totals.teleop.pantry.carrot.L1).toBe(0);
+    expect(recs.find((x) => x.team === '321')!.video!.events).toEqual([]);
+  });
+
+  it('checks scouts against the official count only when people scouted all three robots', () => {
+    const played: MatchRow = { ...match, breakdown: { red: emptyBreakdown(), blue: emptyBreakdown() } };
+    const mixed = buildRecords({ ...opts, submissions: [subFor('A', ['611', '449'])], reports: [], events: [], matches: [played], video: [video('321', 'red', [])] });
+    expect(mixed.find((r) => r.team === '321')?.source).toBe('video');
+    expect(allianceChecks([played], mixed)).toEqual([]);
+    const human = buildRecords({ ...opts, submissions: [subFor('A', ['611', '449', '321'])], reports: [], events: [], matches: [played] });
+    expect(allianceChecks([played], human).map((c) => c.alliance)).toEqual(['red']);
+  });
+
+  it('counts reliability from human-scouted matches only (the video cannot see a robot die)', () => {
+    const q2: MatchRow = { ...match, key: 'Q2', label: 'Q2', match_number: 2 };
+    const died: ScoutEvent = { ...humanEv(60), id: 'died', action: 'flag', piece: null, target: null, detail: 'died' };
+    const model = buildModel({
+      teams: [],
+      matches: [match, q2],
+      submissions: [sub],
+      reports: [],
+      events: [died],
+      pitReports: [],
+      video: [{ ...video('611', 'red', []), id: 'Q2:611', match_key: 'Q2' }],
+    });
+    const t = model.teams.get('611')!;
+    expect(t.n).toBe(2);
+    expect(t.reliability).toBe(0);
+  });
+
   it('parses the video file and drops anything outside the vocabulary', () => {
     const file = JSON.stringify({
       format: VIDEO_FORMAT,
@@ -132,7 +208,14 @@ describe('video scouting', () => {
     expect(p.warnings.join(' ')).toMatch(/2 event/);
     expect(p.warnings.join(' ')).toMatch(/skipped/);
     expect(() => parseVideoFile('{"rows": []}')).toThrow(/video scouting file/);
-    expect(lineupMismatches(p.rows, new Map([['Q1', { red: ['611', '321', '1'], blue: [] }]]))).toEqual(['Q1: 449 is not on red']);
+    expect(lineupMismatches(p.rows, new Map([['Q1', { red: ['611', '321', '1'], blue: ['526', '3504', '686'] }]]))).toEqual([
+      'Q1: 449 is not in this match (misread bumper number?), so it is left out of the stats',
+    ]);
+    expect(lineupMismatches(p.rows, new Map([['Q1', { red: ['611', '321', '1'], blue: ['449', '3504', '686'] }]]))).toEqual([
+      "Q1: 449 is on blue, not red (the schedule's alliance is used)",
+    ]);
+    // no lineup yet (e.g. a playoff match before alliances are known): nothing to check against
+    expect(lineupMismatches(p.rows, new Map([['Q1', { red: [], blue: [] }]]))).toEqual([]);
   });
 });
 
@@ -160,6 +243,10 @@ describe('stream links', () => {
     expect(parseClock('1:02:05')).toBe(3725);
     expect(parseClock('1:02:05.5')).toBe(3725.5);
     expect(parseClock('soon')).toBeNaN();
+    expect(parseClock('75')).toBe(75);
+    expect(parseClock('1:75')).toBeNaN();
+    expect(parseClock('1:60:00')).toBeNaN();
+    expect(parseClock('0:59.5')).toBe(59.5);
   });
   it('knows when the video PC is online', () => {
     const now = Date.parse('2026-12-05T15:00:00Z');

@@ -11,6 +11,7 @@
 import { CYCLE_WEIGHT_BY_ROBOT_COUNT } from '@/config/defaults';
 import { INTAKE_SOURCES, SHELVES, type DefenseType, type Mechanism, type MechStatus, type ProblemFlag } from '@/game/harvestHavoc.config';
 import type { Alliance, MatchRow, RobotReport, ScoutEvent, ScoutSubmission, Station, VideoReport } from '@/data/types';
+import { cleanVideoEvent } from '@/sources/video';
 import { computeCycles, type CycleOptions, type CycleResult } from './cycles';
 import { emptyTotals, robotPoints, totalsFromEvents, totalsFromOverride, type RobotPoints, type RobotTotals } from './derive';
 
@@ -79,19 +80,29 @@ export interface BuildRecordsInput {
   video?: readonly VideoReport[];
 }
 
-/** A video report's events as ScoutEvents (stable ids, a synthetic submission id). */
+/**
+ * A video report's events as ScoutEvents (stable ids, a synthetic submission id). Rows the video PC pushes
+ * straight to the server skip the file import's checks, so events are checked here too: one unexpected
+ * piece (say "Carrot") would otherwise throw in totalsFromEvents and take down the whole analytics model.
+ */
 export function videoEvents(v: VideoReport): ScoutEvent[] {
-  return (v.events ?? []).map((e, i) => ({
-    id: `video:${v.id}:${i}`,
-    submission_id: `video:${v.id}`,
-    team_id: v.team_id,
-    t_ms: Math.max(0, Math.round(Number(e.t_ms) || 0)),
-    phase: e.phase,
-    action: e.action,
-    piece: e.piece ?? null,
-    target: e.target ?? null,
-    detail: e.detail ?? null,
-  }));
+  const out: ScoutEvent[] = [];
+  (Array.isArray(v.events) ? v.events : []).forEach((raw, i) => {
+    const e = cleanVideoEvent(raw);
+    if (!e) return;
+    out.push({
+      id: `video:${v.id}:${i}`,
+      submission_id: `video:${v.id}`,
+      team_id: v.team_id,
+      t_ms: e.t_ms,
+      phase: e.phase,
+      action: e.action,
+      piece: e.piece ?? null,
+      target: e.target ?? null,
+      detail: e.detail ?? null,
+    });
+  });
+  return out;
 }
 
 function videoSide(v: VideoReport, opts: CycleOptions, human: RobotPoints | null, disagreePoints: number): VideoSide {
@@ -264,6 +275,9 @@ export function buildRecords(input: BuildRecordsInput): TeamMatchRecord[] {
   for (const [key, v] of videoBy) {
     if (groups.has(key)) continue;
     const m = matchBy.get(v.match_key);
+    // a team the match's lineup doesn't have is a misread bumper number: counting it would invent stats for
+    // a team that never played (or one not at the event). No lineup yet = nothing to check against.
+    if (m && (m.red.length || m.blue.length) && !m.red.includes(v.team_id) && !m.blue.includes(v.team_id)) continue;
     const side = videoSide(v, input.cycleOpts, null, input.disagreePoints);
     const alliance: Alliance = m ? (m.red.includes(v.team_id) ? 'red' : m.blue.includes(v.team_id) ? 'blue' : v.alliance) : v.alliance;
     records.push({

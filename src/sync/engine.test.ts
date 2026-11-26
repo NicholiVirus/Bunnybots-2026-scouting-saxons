@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { db } from '@/data/db';
-import { putRow, saveScoutingBundle } from '@/data/repo';
+import { deleteRows, putRow, saveScoutingBundle } from '@/data/repo';
 import { syncStatus } from './status';
 import { SyncEngine } from './engine';
 import { newDraft } from '@/scouting/session';
@@ -69,6 +69,34 @@ describe('sync engine — push', () => {
     expect(calls.map((c) => c.kind)).toEqual(['upsert', 'rpc:submit_scouting']);
     expect((calls[0].payload as Record<string, unknown>).updated_at).toBeUndefined(); // server owns updated_at
     expect(await db.outbox.count()).toBe(0);
+  });
+
+  it('sends only the listed columns for a partial write; the local row is still written in full', async () => {
+    const stream = {
+      id: 's1',
+      url: 'https://www.youtube.com/@x/live',
+      first_label: '',
+      example_start: null,
+      keep_waiting: true,
+      requested: 'run',
+      state: 'recording',
+      status: 'recording Q3',
+      title: 'Day 1',
+      matches: [{ label: 'Q3', at_s: 63 }],
+      worker: 'video-pc',
+      heartbeat_at: '2026-12-05T15:00:00Z',
+      deleted_at: null,
+    };
+    await putRow('video_streams', { ...stream, requested: 'stop' }, { columns: ['url', 'requested'] });
+    await deleteRows('video_streams', [{ ...stream, id: 's2' }], { columns: ['url', 'requested'] });
+    const { client, calls } = fakeClient();
+    const e = new SyncEngine();
+    e.attachForTest(client);
+    await e.push();
+    expect(calls.map((c) => c.kind)).toEqual(['upsert', 'upsert']);
+    expect(calls[0].payload).toEqual({ id: 's1', url: stream.url, requested: 'stop' });
+    expect(Object.keys(calls[1].payload as object).sort()).toEqual(['deleted_at', 'id', 'requested', 'url']);
+    expect(await db.video_streams.get('s1')).toMatchObject({ requested: 'stop', state: 'recording', matches: stream.matches });
   });
 
   it('coalesces repeated edits of the same row into one push', async () => {

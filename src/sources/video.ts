@@ -22,7 +22,11 @@ export interface VideoImport {
 const obj = (v: unknown): Record<string, unknown> => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {});
 const str = (v: unknown) => (v === null || v === undefined ? '' : String(v)).trim();
 
-function cleanEvent(e: unknown): VideoEvent | null {
+/**
+ * One video event checked against the app's vocabulary (null = drop it). Also used on rows the video PC
+ * pushes straight to the server (`saxon-push`), which never pass through this file's import.
+ */
+export function cleanVideoEvent(e: unknown): VideoEvent | null {
   const o = obj(e);
   const t = Number(o.t_ms);
   const phase = str(o.phase) as Phase;
@@ -65,7 +69,7 @@ export function parseVideoFile(text: string): VideoImport {
     }
     const events: VideoEvent[] = [];
     for (const e of Array.isArray(r.events) ? r.events : []) {
-      const c = cleanEvent(e);
+      const c = cleanVideoEvent(e);
       if (c) events.push(c);
       else dropped++;
     }
@@ -87,12 +91,24 @@ export function parseVideoFile(text: string): VideoImport {
   return { rows, warnings, event: str(d.event) };
 }
 
-/** Rows whose team is not in the match's official lineup (a misread bumper number). */
+/**
+ * Rows that don't fit the match's official lineup. A team on the other alliance is kept (the schedule's
+ * alliance is used); a team not in the match at all is a misread bumper number and is left out of the stats
+ * (see buildRecords). Matches with no lineup yet are not checked.
+ */
 export function lineupMismatches(rows: VideoImport['rows'], lineups: Map<string, { red: string[]; blue: string[] }>): string[] {
   const out: string[] = [];
   for (const r of rows) {
     const m = lineups.get(r.match_key);
-    if (m && !m[r.alliance as 'red' | 'blue'].includes(r.team_id)) out.push(`${r.match_key}: ${r.team_id} is not on ${r.alliance}`);
+    if (!m || (!m.red.length && !m.blue.length)) continue;
+    const side = r.alliance === 'blue' ? 'blue' : 'red';
+    const other = side === 'red' ? 'blue' : 'red';
+    if (m[side].includes(r.team_id)) continue;
+    out.push(
+      m[other].includes(r.team_id)
+        ? `${r.match_key}: ${r.team_id} is on ${other}, not ${side} (the schedule's alliance is used)`
+        : `${r.match_key}: ${r.team_id} is not in this match (misread bumper number?), so it is left out of the stats`,
+    );
   }
   return out;
 }
@@ -133,12 +149,15 @@ export function parseStreamLink(text: string): StreamLink {
   return { ok: false, error: 'Only YouTube and Twitch links are supported' };
 }
 
-/** "1:02:05", "62:05" or "3725" (seconds) → seconds; '' → null; anything else → NaN. */
+/** "1:02:05", "62:05" or "3725" (seconds) → seconds; '' → null; anything else (incl. "1:75") → NaN. */
 export function parseClock(text: string): number | null {
   const t = text.trim();
   if (!t) return null;
   if (!/^\d+(:\d{1,2}){0,2}(\.\d+)?$/.test(t)) return NaN;
-  return t.split(':').reduce((acc, part) => acc * 60 + Number(part), 0);
+  const parts = t.split(':').map(Number);
+  // only the first part may be 60 or more ("62:05" is fine; "1:75" is a typo)
+  if (parts.slice(1).some((p) => p >= 60)) return NaN;
+  return parts.reduce((acc, part) => acc * 60 + part, 0);
 }
 
 /** The video PC counts as online if it reported in the last 2 minutes (it checks in every ~15 s). */

@@ -306,8 +306,12 @@ export function buildModel(input: ModelInput): AnalyticsModel {
     };
     const flagCounts: Partial<Record<ProblemFlag, number>> = {};
     for (const r of rs) for (const f of r.flags) flagCounts[f] = (flagCounts[f] ?? 0) + 1;
-    const unreliable = rs.filter((r) => r.flags.some(isReliabilityFlag)).length;
-    const defenseRecs = rs.filter((r) => r.defense.played);
+    // Flags and defense come only from people: a video-only match would otherwise count as "no problems,
+    // no defense" and inflate reliability / deflate the defense rate.
+    const humanRs = rs.filter((r) => r.source === 'human');
+    const unreliable = humanRs.filter((r) => r.flags.some(isReliabilityFlag)).length;
+    const defenseRecs = humanRs.filter((r) => r.defense.played);
+    const defenseRate = humanRs.length ? defenseRecs.length / humanRs.length : 0;
     const defTypes: Partial<Record<DefenseType, number>> = {};
     for (const r of defenseRecs) if (r.defense.type) defTypes[r.defense.type] = (defTypes[r.defense.type] ?? 0) + 1;
     const defRatings = defenseRecs.map((r) => r.defense.rating).filter((x): x is number => x !== null);
@@ -342,7 +346,7 @@ export function buildModel(input: ModelInput): AnalyticsModel {
       giRel = score >= 0.8 ? 'reliable' : score >= 0.5 ? 'inconsistent' : 'unreliable';
     }
     const pit = mergePit(pitBy.get(team) ?? []);
-    const roleInferred = rs.length ? inferRole({ defenseRate: rs.length ? defenseRecs.length / rs.length : 0, pieces, byCategory }) : null;
+    const roleInferred = rs.length ? inferRole({ defenseRate, pieces, byCategory }) : null;
     const oprV = opr.get(team) ?? null;
     const noFoul = comps.noFoul?.get(team) ?? null;
     const gap = rs.length && noFoul !== null ? mean(pts) - noFoul : null;
@@ -368,7 +372,7 @@ export function buildModel(input: ModelInput): AnalyticsModel {
       recent3,
       byCategory,
       pieces,
-      reliability: rs.length ? (rs.length - unreliable) / rs.length : null,
+      reliability: humanRs.length ? (humanRs.length - unreliable) / humanRs.length : null,
       flagCounts,
       cycles: cycleStats(rs),
       endgame: {
@@ -380,7 +384,7 @@ export function buildModel(input: ModelInput): AnalyticsModel {
         source: endgameSource,
       },
       cake: { ovenCarrots, cakesGenerated, feederCredit: cakesGenerated * avgCakeValue },
-      defense: { rate: rs.length ? defenseRecs.length / rs.length : 0, rating: defRatings.length ? mean(defRatings) : null, types: defTypes },
+      defense: { rate: defenseRate, rating: defRatings.length ? mean(defRatings) : null, types: defTypes },
       driver: {
         rating: drivers.length ? mean(drivers) : null,
         relScore: relScores.length ? mean(relScores) : null,

@@ -37,6 +37,20 @@ test('every screen renders in demo mode without errors', async ({ browser }) => 
   await ctx.close();
 });
 
+test("tapping a switch's text flips it, like tapping the switch itself", async ({ browser }) => {
+  const ctx = await browser.newContext();
+  await demoDevice(ctx);
+  const page = await ctx.newPage();
+  await page.goto('/settings/');
+  const haptics = page.getByRole('switch', { name: 'Haptic feedback on taps' });
+  const before = await haptics.getAttribute('aria-checked');
+  await page.getByText('Haptic feedback on taps', { exact: true }).click();
+  await expect(haptics).toHaveAttribute('aria-checked', before === 'true' ? 'false' : 'true');
+  await haptics.click();
+  await expect(haptics).toHaveAttribute('aria-checked', String(before));
+  await ctx.close();
+});
+
 test('admin is locked behind the team passcode', async ({ browser }) => {
   const ctx = await browser.newContext();
   await demoDevice(ctx);

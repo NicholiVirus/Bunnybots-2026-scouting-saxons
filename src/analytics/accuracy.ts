@@ -45,7 +45,8 @@ export function allianceChecks(matches: readonly MatchRow[], records: readonly T
     if (!m.played || !m.breakdown) continue;
     for (const side of ['red', 'blue'] as const) {
       const recs = m[side].map((t) => by.get(`${m.key}:${t}`));
-      if (recs.some((r) => !r)) continue; // need all 3 robots scouted
+      // need all 3 robots scouted by people: a video-only robot's misses would be charged to the human scouts
+      if (recs.some((r) => !r || r.source !== 'human')) continue;
       const official = officialPieces(m, side);
       if (official === null) continue;
       const scouted = recs.reduce((a, r) => a + scoutedPieces(r!), 0);

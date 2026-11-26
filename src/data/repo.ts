@@ -41,6 +41,19 @@ async function enqueue(item: Omit<OutboxItem, 'id' | 'created_at' | 'attempts' |
 export interface WriteOpts {
   /** false = local only (demo data, server-sourced rows). Otherwise queued whenever server sync is active. */
   sync?: boolean;
+  /**
+   * Send only these columns (plus the row key) to the server, which keeps its own values for the rest.
+   * For rows another writer also updates (the video PC's progress on video_streams): a write from a stale
+   * local copy then can't wipe what it wrote meanwhile. The local row is still written in full.
+   */
+  columns?: readonly string[];
+}
+
+/** What goes to the server: the row without updated_at (the server clock owns it), narrowed to `columns` if given. */
+function serverPayload(name: SyncedTable, r: AnyRow, columns?: readonly string[], always: readonly string[] = []): AnyRow {
+  const payload: AnyRow = columns ? Object.fromEntries([TABLE_KEY[name], ...columns, ...always].filter((c) => c in r).map((c) => [c, r[c]])) : { ...r };
+  delete payload.updated_at;
+  return payload;
 }
 
 /** Insert/update rows locally and queue them for the server. */
@@ -50,9 +63,7 @@ export async function putRows<T extends object>(name: SyncedTable, rows: T[], op
   await table(name).bulkPut(stamped);
   if (opts.sync !== false && serverSyncActive()) {
     for (const r of stamped) {
-      const payload: AnyRow = { ...r };
-      delete payload.updated_at; // server clock owns updated_at
-      await enqueue({ kind: 'upsert', table: name, key: rowKey(name, r), payload });
+      await enqueue({ kind: 'upsert', table: name, key: rowKey(name, r), payload: serverPayload(name, r, opts.columns) });
     }
   }
 }
@@ -67,8 +78,7 @@ export async function deleteRows(name: SyncedTable, items: object[], opts: Write
   for (const r of items as AnyRow[]) {
     await t.delete(r[keyField] as string | number);
     if (opts.sync !== false && serverSyncActive()) {
-      const payload: AnyRow = { ...r, deleted_at: nowIso() };
-      delete payload.updated_at;
+      const payload = serverPayload(name, { ...r, deleted_at: nowIso() }, opts.columns, ['deleted_at']);
       await enqueue({ kind: 'upsert', table: name, key: rowKey(name, r), payload });
     }
   }

@@ -126,19 +126,23 @@ export function Segmented<T extends string>({
   );
 }
 
+/**
+ * On/off switch. The switch is a real <button>, so the surrounding <label> forwards a tap on the text to it
+ * (a <span> is not labelable: tapping the text did nothing) and Space / Enter work natively.
+ */
 export function Toggle({ checked, onChange, label, disabled }: { checked: boolean; onChange: (v: boolean) => void; label?: ReactNode; disabled?: boolean }) {
   return (
     <label className={cx('tap flex cursor-pointer items-center gap-3 select-none', disabled && 'opacity-40')}>
-      <span
+      <button
+        type="button"
         role="switch"
         aria-checked={checked}
-        tabIndex={0}
-        onKeyDown={(e) => (e.key === ' ' || e.key === 'Enter') && !disabled && onChange(!checked)}
+        disabled={disabled}
         onClick={() => !disabled && onChange(!checked)}
         className={cx('relative h-7 w-12 shrink-0 rounded-full transition', checked ? 'bg-saxon' : 'bg-surface-2 border border-line')}
       >
         <span className={cx('absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition', checked ? 'left-[22px]' : 'left-0.5')} />
-      </span>
+      </button>
       {label && <span>{label}</span>}
     </label>
   );
