@@ -1,0 +1,2232 @@
+{
+ "format": "bunnyscout-video/1",
+ "generated_at": "2026-11-26T21:05:11Z",
+ "event": "Harvest Havoc simulated livestream",
+ "rows": [
+  {
+   "id": "Q1:2106",
+   "match_key": "Q1",
+   "team_id": "2106",
+   "alliance": "red",
+   "station": "1",
+   "events": [
+    {
+     "t_ms": 800,
+     "phase": "auto",
+     "action": "taxi"
+    },
+    {
+     "t_ms": 2100,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 2300,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 5900,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: ambiguous"
+    },
+    {
+     "t_ms": 5900,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: ambiguous"
+    },
+    {
+     "t_ms": 26300,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 26300,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 28400,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 28600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 55000,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 55000,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 44.0,
+    "oven_est": 0.0,
+    "endgame": 0,
+    "total_est": 46.0
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.026,
+    "id_basis": "bumper reads (236)",
+    "pantry": "ambiguous",
+    "oven_basis": "visits",
+    "tracked_frac": 0.987
+   },
+   "metrics": {
+    "cycles": 7,
+    "median_cycle_s": 14.2,
+    "distance_m": 300.4,
+    "avg_speed": 2.16,
+    "max_speed": 3.87,
+    "zone_time": {
+     "own_kitchen": 21.6,
+     "own_farm": 19.6,
+     "opp_kitchen": 0.0,
+     "opp_farm": 0.0,
+     "neutral": 93.8,
+     "own_half": 62.3
+    },
+    "contacts": 6,
+    "defense_s": 0.0,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 0,
+     "G12": 1,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q1:5243",
+   "match_key": "Q1",
+   "team_id": "5243",
+   "alliance": "red",
+   "station": "3",
+   "events": [
+    {
+     "t_ms": 700,
+     "phase": "auto",
+     "action": "taxi"
+    },
+    {
+     "t_ms": 15700,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 20200,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 39900,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 39900,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 56100,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L3",
+     "detail": "video: ambiguous"
+    },
+    {
+     "t_ms": 58800,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 77400,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 102100,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 102100,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 117000,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 117000,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 150000,
+     "phase": "endgame",
+     "action": "park"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 42.0,
+    "oven_est": 12.0,
+    "endgame": 11,
+    "total_est": 67.0
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.026,
+    "id_basis": "bumper reads (236)",
+    "pantry": "ambiguous",
+    "oven_basis": "visits",
+    "tracked_frac": 0.962
+   },
+   "metrics": {
+    "cycles": 11,
+    "median_cycle_s": 10.7,
+    "distance_m": 212.1,
+    "avg_speed": 1.44,
+    "max_speed": 3.68,
+    "zone_time": {
+     "own_kitchen": 29.4,
+     "own_farm": 0.0,
+     "opp_kitchen": 0.0,
+     "opp_farm": 18.8,
+     "neutral": 86.8,
+     "own_half": 134.4
+    },
+    "contacts": 28,
+    "defense_s": 11.8,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 6,
+     "G12": 0,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q1:1599",
+   "match_key": "Q1",
+   "team_id": "1599",
+   "alliance": "red",
+   "station": "2",
+   "events": [
+    {
+     "t_ms": 1000,
+     "phase": "auto",
+     "action": "taxi"
+    },
+    {
+     "t_ms": 2700,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 2700,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 58500,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 58500,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 70600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 70600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 85900,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 85900,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 98700,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 98700,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 113800,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 113800,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 0.0,
+    "oven_est": 24.0,
+    "endgame": 0,
+    "total_est": 26.0
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.0,
+    "id_basis": "bumper reads (236)",
+    "pantry": "none",
+    "oven_basis": "visits",
+    "tracked_frac": 0.962
+   },
+   "metrics": {
+    "cycles": 5,
+    "median_cycle_s": 13.95,
+    "distance_m": 274.3,
+    "avg_speed": 1.97,
+    "max_speed": 3.15,
+    "zone_time": {
+     "own_kitchen": 17.8,
+     "own_farm": 16.1,
+     "opp_kitchen": 0.0,
+     "opp_farm": 0.0,
+     "neutral": 101.1,
+     "own_half": 81.4
+    },
+    "contacts": 4,
+    "defense_s": 0.3,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 0,
+     "G12": 0,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q1:5353",
+   "match_key": "Q1",
+   "team_id": "5353",
+   "alliance": "blue",
+   "station": "1",
+   "events": [
+    {
+     "t_ms": 900,
+     "phase": "auto",
+     "action": "taxi"
+    },
+    {
+     "t_ms": 2100,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 2200,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: ambiguous"
+    },
+    {
+     "t_ms": 33400,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 33400,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 35700,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 46700,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: confident"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 24.0,
+    "oven_est": null,
+    "endgame": 0,
+    "total_est": 26.0
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.006,
+    "id_basis": "bumper reads (297)",
+    "pantry": "ambiguous",
+    "oven_basis": "visits",
+    "tracked_frac": 0.979
+   },
+   "metrics": {
+    "cycles": 7,
+    "median_cycle_s": 13.5,
+    "distance_m": 277.7,
+    "avg_speed": 2.0,
+    "max_speed": 3.42,
+    "zone_time": {
+     "own_kitchen": 21.6,
+     "own_farm": 16.6,
+     "opp_kitchen": 0.0,
+     "opp_farm": 0.0,
+     "neutral": 96.8,
+     "own_half": 74.7
+    },
+    "contacts": 4,
+    "defense_s": 0.4,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 0,
+     "G12": 0,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q1:321",
+   "match_key": "Q1",
+   "team_id": "321",
+   "alliance": "blue",
+   "station": "2",
+   "events": [
+    {
+     "t_ms": 1000,
+     "phase": "auto",
+     "action": "taxi"
+    },
+    {
+     "t_ms": 3200,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 3200,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 27900,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 27900,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 27900,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 42400,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 42400,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 42400,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 84200,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 36.0,
+    "oven_est": null,
+    "endgame": 0,
+    "total_est": 38.0
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.006,
+    "id_basis": "bumper reads (297)",
+    "pantry": "confident",
+    "oven_basis": "visits",
+    "tracked_frac": 0.973
+   },
+   "metrics": {
+    "cycles": 6,
+    "median_cycle_s": 13.7,
+    "distance_m": 288.7,
+    "avg_speed": 2.07,
+    "max_speed": 3.51,
+    "zone_time": {
+     "own_kitchen": 20.2,
+     "own_farm": 25.9,
+     "opp_kitchen": 0.2,
+     "opp_farm": 0.0,
+     "neutral": 88.7,
+     "own_half": 72.8
+    },
+    "contacts": 2,
+    "defense_s": 0.5,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 0,
+     "G12": 0,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q1:2537",
+   "match_key": "Q1",
+   "team_id": "2537",
+   "alliance": "blue",
+   "station": "3",
+   "events": [
+    {
+     "t_ms": 700,
+     "phase": "auto",
+     "action": "taxi"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 0.0,
+    "oven_est": null,
+    "endgame": 0,
+    "total_est": 2.0
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.013,
+    "id_basis": "bumper reads (297)",
+    "pantry": "none",
+    "oven_basis": "visits",
+    "tracked_frac": 0.914
+   },
+   "metrics": {
+    "cycles": 0,
+    "median_cycle_s": null,
+    "distance_m": 255.0,
+    "avg_speed": 1.85,
+    "max_speed": 3.07,
+    "zone_time": {
+     "own_kitchen": 0.7,
+     "own_farm": 27.3,
+     "opp_kitchen": 22.1,
+     "opp_farm": 0.0,
+     "neutral": 84.9,
+     "own_half": 18.5
+    },
+    "contacts": 32,
+    "defense_s": 23.9,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 7,
+     "G12": 0,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q2:5549",
+   "match_key": "Q2",
+   "team_id": "5549",
+   "alliance": "red",
+   "station": "2",
+   "events": [
+    {
+     "t_ms": 900,
+     "phase": "auto",
+     "action": "taxi"
+    },
+    {
+     "t_ms": 4500,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 15600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 15700,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 22100,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 28400,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 28400,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 38600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 38600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 48800,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 55900,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 78900,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 96000,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 112400,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 114400,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L1",
+     "detail": "video: low"
+    },
+    {
+     "t_ms": 150000,
+     "phase": "endgame",
+     "action": "park"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 109.3,
+    "oven_est": 3.1,
+    "endgame": 0,
+    "total_est": 114.4
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.019,
+    "id_basis": "bumper reads (260)",
+    "pantry": "low",
+    "oven_basis": "visits",
+    "tracked_frac": 0.966
+   },
+   "metrics": {
+    "cycles": 9,
+    "median_cycle_s": 9.2,
+    "distance_m": 201.5,
+    "avg_speed": 1.42,
+    "max_speed": 3.41,
+    "zone_time": {
+     "own_kitchen": 48.0,
+     "own_farm": 0.0,
+     "opp_kitchen": 0.0,
+     "opp_farm": 5.7,
+     "neutral": 81.3,
+     "own_half": 135.0
+    },
+    "contacts": 3,
+    "defense_s": 0.0,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 0,
+     "G12": 0,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q2:8726",
+   "match_key": "Q2",
+   "team_id": "8726",
+   "alliance": "red",
+   "station": "1",
+   "events": [
+    {
+     "t_ms": 3100,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 3100,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 28500,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 28500,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 43500,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 43500,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 72300,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 85500,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 116700,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 0.0,
+    "oven_est": 18.7,
+    "endgame": 0,
+    "total_est": 20.7
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.0,
+    "id_basis": "bumper reads (260)",
+    "pantry": "none",
+    "oven_basis": "visits",
+    "tracked_frac": 0.957
+   },
+   "metrics": {
+    "cycles": 5,
+    "median_cycle_s": 21.9,
+    "distance_m": 245.7,
+    "avg_speed": 1.78,
+    "max_speed": 3.09,
+    "zone_time": {
+     "own_kitchen": 14.2,
+     "own_farm": 15.1,
+     "opp_kitchen": 0.6,
+     "opp_farm": 8.2,
+     "neutral": 96.9,
+     "own_half": 63.6
+    },
+    "contacts": 5,
+    "defense_s": 4.9,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 2,
+     "G12": 0,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q2:8230",
+   "match_key": "Q2",
+   "team_id": "8230",
+   "alliance": "red",
+   "station": "3",
+   "events": [
+    {
+     "t_ms": 45800,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 45800,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 50500,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 66000,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 71700,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L3",
+     "detail": "video: ambiguous"
+    }
+   ],
+   "points": {
+    "taxi": 0,
+    "pantry_est": 24.7,
+    "oven_est": 6.2,
+    "endgame": 0,
+    "total_est": 30.9
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.019,
+    "id_basis": "bumper reads (260)",
+    "pantry": "ambiguous",
+    "oven_basis": "visits",
+    "tracked_frac": 0.953
+   },
+   "metrics": {
+    "cycles": 6,
+    "median_cycle_s": 8.4,
+    "distance_m": 101.5,
+    "avg_speed": 0.74,
+    "max_speed": 2.8,
+    "zone_time": {
+     "own_kitchen": 73.2,
+     "own_farm": 0.0,
+     "opp_kitchen": 0.0,
+     "opp_farm": 10.7,
+     "neutral": 51.1,
+     "own_half": 135.0
+    },
+    "contacts": 0,
+    "defense_s": 4.1,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 0,
+     "G12": 0,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q2:611",
+   "match_key": "Q2",
+   "team_id": "611",
+   "alliance": "blue",
+   "station": "2",
+   "events": [
+    {
+     "t_ms": 900,
+     "phase": "auto",
+     "action": "taxi"
+    },
+    {
+     "t_ms": 5400,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 15600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 15700,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 21100,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 27800,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 34800,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 41700,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 150000,
+     "phase": "endgame",
+     "action": "park"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 57.0,
+    "oven_est": 0.0,
+    "endgame": 11,
+    "total_est": 70.0
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.032,
+    "id_basis": "bumper reads (257)",
+    "pantry": "confident",
+    "oven_basis": "visits",
+    "tracked_frac": 0.984
+   },
+   "metrics": {
+    "cycles": 15,
+    "median_cycle_s": 6.9,
+    "distance_m": 221.2,
+    "avg_speed": 1.56,
+    "max_speed": 3.58,
+    "zone_time": {
+     "own_kitchen": 51.9,
+     "own_farm": 0.0,
+     "opp_kitchen": 0.0,
+     "opp_farm": 0.0,
+     "neutral": 83.1,
+     "own_half": 133.6
+    },
+    "contacts": 1,
+    "defense_s": 0.0,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 0,
+     "G12": 0,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q2:9033",
+   "match_key": "Q2",
+   "team_id": "9033",
+   "alliance": "blue",
+   "station": "1",
+   "events": [
+    {
+     "t_ms": 900,
+     "phase": "auto",
+     "action": "taxi"
+    },
+    {
+     "t_ms": 3100,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 5500,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 27500,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 29800,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 44600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 59700,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 59700,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 65800,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: low"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 30.0,
+    "oven_est": 0.0,
+    "endgame": 0,
+    "total_est": 32.0
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.0,
+    "id_basis": "bumper reads (257)",
+    "pantry": "low",
+    "oven_basis": "visits",
+    "tracked_frac": 0.986
+   },
+   "metrics": {
+    "cycles": 7,
+    "median_cycle_s": 15.4,
+    "distance_m": 258.8,
+    "avg_speed": 1.85,
+    "max_speed": 3.02,
+    "zone_time": {
+     "own_kitchen": 26.5,
+     "own_farm": 14.6,
+     "opp_kitchen": 0.0,
+     "opp_farm": 0.0,
+     "neutral": 93.9,
+     "own_half": 81.5
+    },
+    "contacts": 3,
+    "defense_s": 0.2,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 0,
+     "G12": 0,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q2:4821",
+   "match_key": "Q2",
+   "team_id": "4821",
+   "alliance": "blue",
+   "station": "3",
+   "events": [
+    {
+     "t_ms": 800,
+     "phase": "auto",
+     "action": "taxi"
+    },
+    {
+     "t_ms": 3400,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 3400,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 3400,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 27700,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 27700,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 27700,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 46600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 46600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 46600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 64000,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 64000,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 64000,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 84800,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 84800,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 84800,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 114000,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 114000,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 114000,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 0.0,
+    "oven_est": 36.0,
+    "endgame": 3,
+    "total_est": 41.0
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.032,
+    "id_basis": "bumper reads (257)",
+    "pantry": "none",
+    "oven_basis": "visits",
+    "tracked_frac": 0.94
+   },
+   "metrics": {
+    "cycles": 6,
+    "median_cycle_s": 18.9,
+    "distance_m": 277.0,
+    "avg_speed": 2.0,
+    "max_speed": 3.52,
+    "zone_time": {
+     "own_kitchen": 19.1,
+     "own_farm": 29.7,
+     "opp_kitchen": 0.0,
+     "opp_farm": 0.0,
+     "neutral": 86.2,
+     "own_half": 69.4
+    },
+    "contacts": 4,
+    "defense_s": 0.7,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 0,
+     "G12": 0,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q3:686",
+   "match_key": "Q3",
+   "team_id": "686",
+   "alliance": "red",
+   "station": "3",
+   "events": [
+    {
+     "t_ms": 1000,
+     "phase": "auto",
+     "action": "taxi"
+    },
+    {
+     "t_ms": 15500,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 20000,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 27600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 34100,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 54100,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 54200,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "cake",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 129500,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 129500,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 129500,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 53.0,
+    "oven_est": 5.1,
+    "endgame": 0,
+    "total_est": 60.1
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.013,
+    "id_basis": "bumper reads (292)",
+    "pantry": "confident",
+    "oven_basis": "visits",
+    "tracked_frac": 0.962
+   },
+   "metrics": {
+    "cycles": 7,
+    "median_cycle_s": 12.5,
+    "distance_m": 221.7,
+    "avg_speed": 1.52,
+    "max_speed": 3.44,
+    "zone_time": {
+     "own_kitchen": 47.2,
+     "own_farm": 0.0,
+     "opp_kitchen": 0.0,
+     "opp_farm": 5.5,
+     "neutral": 82.3,
+     "own_half": 135.0
+    },
+    "contacts": 29,
+    "defense_s": 3.8,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 5,
+     "G12": 0,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q3:5587",
+   "match_key": "Q3",
+   "team_id": "5587",
+   "alliance": "red",
+   "station": "1",
+   "events": [
+    {
+     "t_ms": 1000,
+     "phase": "auto",
+     "action": "taxi"
+    },
+    {
+     "t_ms": 2300,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 2600,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 6000,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 6000,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: ambiguous"
+    },
+    {
+     "t_ms": 26100,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 26100,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 26100,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 42400,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 42400,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 37.0,
+    "oven_est": 0.0,
+    "endgame": 0,
+    "total_est": 39.0
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.006,
+    "id_basis": "bumper reads (292)",
+    "pantry": "ambiguous",
+    "oven_basis": "visits",
+    "tracked_frac": 0.967
+   },
+   "metrics": {
+    "cycles": 7,
+    "median_cycle_s": 15.55,
+    "distance_m": 270.1,
+    "avg_speed": 1.95,
+    "max_speed": 3.48,
+    "zone_time": {
+     "own_kitchen": 41.2,
+     "own_farm": 12.3,
+     "opp_kitchen": 0.0,
+     "opp_farm": 0.0,
+     "neutral": 81.5,
+     "own_half": 97.1
+    },
+    "contacts": 16,
+    "defense_s": 0.0,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 0,
+     "G12": 0,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q3:3504",
+   "match_key": "Q3",
+   "team_id": "3504",
+   "alliance": "red",
+   "station": "2",
+   "events": [
+    {
+     "t_ms": 1000,
+     "phase": "auto",
+     "action": "taxi"
+    },
+    {
+     "t_ms": 2900,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 2900,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 2900,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 61600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 61600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 61600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 74100,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 74100,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 74100,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 88900,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 88900,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 103600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 103600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 121600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 121600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "oven",
+     "detail": "video: estimated"
+    },
+    {
+     "t_ms": 150000,
+     "phase": "endgame",
+     "action": "park"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 0.0,
+    "oven_est": 30.9,
+    "endgame": 0,
+    "total_est": 32.9
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.006,
+    "id_basis": "bumper reads (292)",
+    "pantry": "none",
+    "oven_basis": "visits",
+    "tracked_frac": 0.958
+   },
+   "metrics": {
+    "cycles": 5,
+    "median_cycle_s": 14.75,
+    "distance_m": 266.8,
+    "avg_speed": 1.9,
+    "max_speed": 3.23,
+    "zone_time": {
+     "own_kitchen": 17.3,
+     "own_farm": 22.8,
+     "opp_kitchen": 0.0,
+     "opp_farm": 0.0,
+     "neutral": 94.9,
+     "own_half": 72.8
+    },
+    "contacts": 7,
+    "defense_s": 0.3,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 0,
+     "G12": 0,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q3:449",
+   "match_key": "Q3",
+   "team_id": "449",
+   "alliance": "blue",
+   "station": "1",
+   "events": [
+    {
+     "t_ms": 900,
+     "phase": "auto",
+     "action": "taxi"
+    },
+    {
+     "t_ms": 2100,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 33000,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 33000,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 36100,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: ambiguous"
+    },
+    {
+     "t_ms": 36100,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: ambiguous"
+    },
+    {
+     "t_ms": 52800,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 54800,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 29.0,
+    "oven_est": null,
+    "endgame": 0,
+    "total_est": 31.0
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.0,
+    "id_basis": "bumper reads (325)",
+    "pantry": "ambiguous",
+    "oven_basis": "visits",
+    "tracked_frac": 0.965
+   },
+   "metrics": {
+    "cycles": 6,
+    "median_cycle_s": 17.1,
+    "distance_m": 272.4,
+    "avg_speed": 1.96,
+    "max_speed": 3.2,
+    "zone_time": {
+     "own_kitchen": 19.3,
+     "own_farm": 24.4,
+     "opp_kitchen": 0.0,
+     "opp_farm": 0.0,
+     "neutral": 91.3,
+     "own_half": 66.5
+    },
+    "contacts": 8,
+    "defense_s": 0.0,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 0,
+     "G12": 0,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q3:4575",
+   "match_key": "Q3",
+   "team_id": "4575",
+   "alliance": "blue",
+   "station": "2",
+   "events": [
+    {
+     "t_ms": 1000,
+     "phase": "auto",
+     "action": "taxi"
+    },
+    {
+     "t_ms": 3100,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 3200,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 3200,
+     "phase": "auto",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 38600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: low"
+    },
+    {
+     "t_ms": 38600,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L1",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 50000,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L2",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 72100,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 84700,
+     "phase": "teleop",
+     "action": "score",
+     "piece": "carrot",
+     "target": "L3",
+     "detail": "video: confident"
+    },
+    {
+     "t_ms": 150000,
+     "phase": "endgame",
+     "action": "park"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 31.0,
+    "oven_est": null,
+    "endgame": 5,
+    "total_est": 38.0
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.006,
+    "id_basis": "bumper reads (325)",
+    "pantry": "low",
+    "oven_basis": "visits",
+    "tracked_frac": 0.99
+   },
+   "metrics": {
+    "cycles": 7,
+    "median_cycle_s": 13.6,
+    "distance_m": 275.8,
+    "avg_speed": 1.98,
+    "max_speed": 3.55,
+    "zone_time": {
+     "own_kitchen": 19.3,
+     "own_farm": 24.3,
+     "opp_kitchen": 0.0,
+     "opp_farm": 0.0,
+     "neutral": 91.4,
+     "own_half": 69.5
+    },
+    "contacts": 0,
+    "defense_s": 0.0,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 0,
+     "G12": 0,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  },
+  {
+   "id": "Q3:9449",
+   "match_key": "Q3",
+   "team_id": "9449",
+   "alliance": "blue",
+   "station": "3",
+   "events": [
+    {
+     "t_ms": 900,
+     "phase": "auto",
+     "action": "taxi"
+    }
+   ],
+   "points": {
+    "taxi": 2,
+    "pantry_est": 0.0,
+    "oven_est": null,
+    "endgame": 4,
+    "total_est": 6.0
+   },
+   "confidence": {
+    "id": 1.0,
+    "id_unsure_frac": 0.006,
+    "id_basis": "bumper reads (325)",
+    "pantry": "none",
+    "oven_basis": "visits",
+    "tracked_frac": 0.96
+   },
+   "metrics": {
+    "cycles": 0,
+    "median_cycle_s": null,
+    "distance_m": 236.5,
+    "avg_speed": 1.73,
+    "max_speed": 2.99,
+    "zone_time": {
+     "own_kitchen": 0.0,
+     "own_farm": 12.9,
+     "opp_kitchen": 36.4,
+     "opp_farm": 0.0,
+     "neutral": 85.7,
+     "own_half": 18.5
+    },
+    "contacts": 44,
+    "defense_s": 42.2,
+    "foul_risk": {
+     "G3": 0,
+     "G11": 26,
+     "G12": 1,
+     "G13": 0
+    }
+   },
+   "source_version": "bunnyscout 64c5dbf"
+  }
+ ]
+}

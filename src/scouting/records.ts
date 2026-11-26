@@ -11,6 +11,7 @@
 import { CYCLE_WEIGHT_BY_ROBOT_COUNT } from '@/config/defaults';
 import { INTAKE_SOURCES, SHELVES, type DefenseType, type Mechanism, type MechStatus, type ProblemFlag } from '@/game/harvestHavoc.config';
 import type { Alliance, MatchRow, RobotReport, ScoutEvent, ScoutSubmission, Station, VideoReport } from '@/data/types';
+import { normalizeTeamId } from '@/lib/teamIds';
 import { cleanVideoEvent } from '@/sources/video';
 import { computeCycles, type CycleOptions, type CycleResult } from './cycles';
 import { emptyTotals, robotPoints, totalsFromEvents, totalsFromOverride, type RobotPoints, type RobotTotals } from './derive';
@@ -198,7 +199,13 @@ export function buildRecords(input: BuildRecordsInput): TeamMatchRecord[] {
     else groups.set(key, [r]);
   }
   const videoBy = new Map<string, VideoReport>();
-  for (const v of input.video ?? []) if (!v.deleted_at) videoBy.set(`${v.match_key}:${v.team_id}`, v);
+  for (const raw of input.video ?? []) {
+    if (raw.deleted_at) continue;
+    // rows the video PC pushes straight to the server (saxon-push) skip the file import's team-id cleanup
+    const team = normalizeTeamId(raw.team_id) ?? raw.team_id;
+    const v = team === raw.team_id ? raw : { ...raw, team_id: team };
+    videoBy.set(`${v.match_key}:${v.team_id}`, v);
+  }
   const records: TeamMatchRecord[] = [];
   for (const [key, scouts] of groups) {
     const [matchKey, team] = [key.slice(0, key.lastIndexOf(':')), key.slice(key.lastIndexOf(':') + 1)];

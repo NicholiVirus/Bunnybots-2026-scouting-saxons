@@ -5,6 +5,7 @@
  */
 import type { EventAction, EventTarget, VideoEvent, VideoReport } from '@/data/types';
 import type { Phase, Piece } from '@/game/harvestHavoc.config';
+import { normalizeTeamId } from '@/lib/teamIds';
 
 export const VIDEO_FORMAT = 'bunnyscout-video/1';
 
@@ -61,7 +62,8 @@ export function parseVideoFile(text: string): VideoImport {
   for (const raw of d.rows as unknown[]) {
     const r = obj(raw);
     const match_key = str(r.match_key).toUpperCase();
-    const team_id = str(r.team_id);
+    // the video reads bumper numbers; the field system's B-robot numbers (9449) map to our ids (449b)
+    const team_id = normalizeTeamId(str(r.team_id)) ?? '';
     const alliance = str(r.alliance);
     if (!match_key || !/^\d+[A-Za-z]?$/.test(team_id) || (alliance !== 'red' && alliance !== 'blue')) {
       warnings.push(`skipped a row without a valid match / team / alliance (${match_key || '?'} ${team_id || '?'})`);

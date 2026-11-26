@@ -219,6 +219,43 @@ describe('video scouting', () => {
   });
 });
 
+describe('video team numbers', () => {
+  // the video PC reads bumpers / the official lineup as numbers: a B robot arrives as 9449 (the field system's code)
+  const vEv = { t_ms: 40_000, phase: 'teleop', action: 'score', piece: 'cake', target: 'L3' } as const;
+  const lineup: MatchRow = { ...match, red: ['611', '449b', '321'] };
+
+  it('imports 9449 as 449b, so it matches the lineup', () => {
+    const p = parseVideoFile(
+      JSON.stringify({ format: VIDEO_FORMAT, rows: [{ match_key: 'Q1', team_id: 9449, alliance: 'red', station: '2', events: [vEv] }] }),
+    );
+    expect(p.rows[0].team_id).toBe('449b');
+    expect(p.rows[0].id).toBe('Q1:449b');
+    expect(lineupMismatches(p.rows, new Map([['Q1', lineup]]))).toEqual([]);
+  });
+
+  it('counts a pushed row for 9449 as 449b (rows uploaded straight to the server skip the import)', () => {
+    const recs = buildRecords({
+      submissions: [],
+      reports: [],
+      events: [],
+      matches: [lineup],
+      cycleOpts: { burstWindowMs: 3000, outlierCapMs: 60_000 },
+      disagreePoints: 5,
+      video: [{ ...video('9449', 'red', [vEv]), id: 'Q1:9449' }],
+    });
+    const r = recs.find((x) => x.team === '449b')!;
+    expect(r.source).toBe('video');
+    expect(r.key).toBe('Q1:449b');
+    expect(r.totals.teleop.pantry.cake.L3).toBe(1);
+    expect(recs.find((x) => x.team === '9449')).toBeUndefined();
+  });
+
+  it('leaves real 9xxx teams alone', () => {
+    const p = parseVideoFile(JSON.stringify({ format: VIDEO_FORMAT, rows: [{ match_key: 'Q2', team_id: '9033', alliance: 'blue', events: [] }] }));
+    expect(p.rows[0].team_id).toBe('9033');
+  });
+});
+
 describe('stream links', () => {
   it('accepts YouTube videos, live pages and channels', () => {
     expect(parseStreamLink('https://youtu.be/4kpO6woeCaU')).toEqual({ ok: true, url: 'https://www.youtube.com/watch?v=4kpO6woeCaU', site: 'youtube', channel: false });
